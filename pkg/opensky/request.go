@@ -22,21 +22,21 @@ func NewRequest(url string) Request {
 	return Request{url: url}
 }
 
-// Execute a request to OpenSky
-func (r *Request) Execute() []Vector {
+// GetPlanes a request to OpenSky
+func (r *Request) GetPlanes() ([]Vector, error) {
 	var vectors []Vector
 	parsedURL := fmt.Sprintf(r.url, 44, 47, -74, -72)
 	resp, err := http.Get(parsedURL)
 
 	if err != nil {
-		panic(err)
+		return vectors, err
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
-		panic(err)
+		return vectors, err
 	}
 
 	var results parsedRequest
@@ -44,7 +44,7 @@ func (r *Request) Execute() []Vector {
 	err = json.Unmarshal([]byte(body), &results)
 
 	if err != nil {
-		panic(err)
+		return vectors, err
 	}
 
 	for i := 0; i < len(results.States); i++ {
@@ -113,5 +113,5 @@ func (r *Request) Execute() []Vector {
 
 		vectors = append(vectors, vector)
 	}
-	return vectors
+	return vectors, nil
 }
