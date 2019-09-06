@@ -91,7 +91,7 @@ func (r *Request) GetPlanes() ([]Vector, error) {
 			squawk = v[14].(string)
 		}
 
-		vector := Vector{
+		vector := ParsedVector{
 			Icao24:         v[0].(string),
 			CallSign:       v[1].(string),
 			OriginCountry:  v[2].(string),

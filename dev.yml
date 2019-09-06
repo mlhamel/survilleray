@@ -2,12 +2,26 @@ name: survilleray
 up:
   - homebrew:
     - openssl
-    - homebrew/cask/ngrok
-    - golangci/tap/golangci-lint
-    - golang-migrate
   - go:
       version: 1.12
       modules: true
+  - railgun
+  - custom:
+      name: Create PostgreSQL database
+      met?: psql --username=postgres --host=survilleray.railgun -lqt | cut -d \| -f 1 | grep -qw survilleray_development
+      meet: createdb --username=postgres --host=survilleray.railgun survilleray_development
+  - custom:
+      name: Build migration tool
+      met?: bin/migrate
+      meet: go build -o bin/migrate cmd/migrate/main.go
+  - database:
+      bootstrap: bin/migrate
+      migrate: bin/migrate
+      vendor: postgres
+      host: survilleray.railgun
+      user: postgres
+      password: ''
+      database: survilleray_development
   - python: 3.6.5
   - pip: [requirements.txt]
   - custom:
