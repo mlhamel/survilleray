@@ -1,16 +1,19 @@
 package main
 
 import (
-	"github.com/jinzhu/gorm"
+	"fmt"
 
 	_ "github.com/jinzhu/gorm/dialects/postgres"
+
+	"github.com/mlhamel/survilleray/pkg/config"
+
+	"github.com/mlhamel/survilleray/pkg/models"
 )
 
 func main() {
-	db, err := gorm.Open("postgres", "host=myhost port=myport user=gorm dbname=gorm password=mypassword")
+	c := config.NewConfig()
 
-	if err != nil {
-		panic("failed to connect database")
-	}
-	defer db.Close()
+	fmt.Printf("Migrating %s\n", c.DSN())
+
+	c.DB().Debug().AutoMigrate(&models.Vector{}) //Database migration
 }

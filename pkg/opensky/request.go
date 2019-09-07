@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/mlhamel/survilleray/pkg/models"
 )
 
 // Request is used for requesting new data to OpenSky
@@ -23,8 +25,7 @@ func NewRequest(url string) Request {
 }
 
 // GetPlanes a request to OpenSky
-func (r *Request) GetPlanes() ([]Vector, error) {
-	var vectors []Vector
+func (r *Request) GetPlanes() (vectors []models.Vector, e error) {
 	parsedURL := fmt.Sprintf(r.url, 44, 47, -74, -72)
 	resp, err := http.Get(parsedURL)
 
@@ -91,7 +92,7 @@ func (r *Request) GetPlanes() ([]Vector, error) {
 			squawk = v[14].(string)
 		}
 
-		vector := ParsedVector{
+		vector := models.Vector{
 			Icao24:         v[0].(string),
 			CallSign:       v[1].(string),
 			OriginCountry:  v[2].(string),

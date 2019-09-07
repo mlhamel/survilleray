@@ -1,4 +1,6 @@
 name: survilleray
+env:
+    DATABASE_URL: "postgres://postgres@survilleray.railgun:5432/survilleray_development"
 up:
   - homebrew:
     - openssl
@@ -14,14 +16,14 @@ up:
       name: Build migration tool
       met?: bin/migrate
       meet: go build -o bin/migrate cmd/migrate/main.go
-  - database:
-      bootstrap: bin/migrate
-      migrate: bin/migrate
-      vendor: postgres
-      host: survilleray.railgun
-      user: postgres
-      password: ''
-      database: survilleray_development
+#   - database:
+#       bootstrap: bin/migrate
+#       migrate: bin/migrate
+#       vendor: postgres
+#       host: survilleray.railgun
+#       user: postgres
+#       password: ''
+#       database: survilleray_development
   - python: 3.6.5
   - pip: [requirements.txt]
   - custom:
