@@ -22,9 +22,16 @@ func main() {
 	}
 
 	for i := 0; i < len(vectors); i++ {
-		fmt.Println(vectors[i])
-		db.NewRecord(vectors[i])
-		db.Create(&vectors[i])
+		v := vectors[i]
+		if db.NewRecord(v) {
+			db.Create(&v)
+
+			errors := db.GetErrors()
+
+			if len(errors) == 0 {
+				fmt.Printf("Inserted: %s\n", v.String())
+			}
+		}
 	}
 
 	defer db.Close()
