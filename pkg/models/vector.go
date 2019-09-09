@@ -29,6 +29,7 @@ type Vector struct {
 	PositionSource float64
 }
 
+// BeforeSave is adding addional validations
 func (v *Vector) BeforeSave() error {
 	v.CallSign = strings.TrimSpace(v.CallSign)
 
@@ -39,6 +40,7 @@ func (v *Vector) BeforeSave() error {
 	return nil
 }
 
+// String return the string representation of the vector
 func (v *Vector) String() string {
 	return fmt.Sprintf("(%s, %s, %f)", v.Icao24, v.CallSign, v.LastContact)
 }
