@@ -14,11 +14,13 @@ import (
 type Config struct {
 	DatabaseURL string
 	parsedURL   *dburl.URL
+	httpPort    string
 }
 
 // NewConfig create a new configuration object
 func NewConfig() *Config {
-	url := os.Getenv("DATABASE_URL")
+	url := getEnv("DATABASE_URL", "")
+	httpPort := getEnv("HTTP_ADDRESS", ":8080")
 	parsedURL, err := dburl.Parse(url)
 
 	if err != nil {
@@ -28,6 +30,7 @@ func NewConfig() *Config {
 	return &Config{
 		DatabaseURL: url,
 		parsedURL:   parsedURL,
+		httpPort:    httpPort,
 	}
 }
 
@@ -50,6 +53,10 @@ func (c *Config) DB() *gorm.DB {
 // Hostname of the configured database
 func (c *Config) Hostname() string {
 	return hostname(c.parsedURL.Host)
+}
+
+func (c *Config) HttpPort() string {
+	return c.httpPort
 }
 
 // Port of the configured database
@@ -97,4 +104,11 @@ func hostport(hostport string) string {
 		return ""
 	}
 	return hostport[colon+len(":"):]
+}
+
+func getEnv(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
 }
