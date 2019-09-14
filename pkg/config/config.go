@@ -20,7 +20,7 @@ type Config struct {
 // NewConfig create a new configuration object
 func NewConfig() *Config {
 	url := getEnv("DATABASE_URL", "")
-	httpPort := getEnv("PORT", ":8080")
+	httpPort := getEnv("PORT", "8080")
 	parsedURL, err := dburl.Parse(url)
 
 	if err != nil {
