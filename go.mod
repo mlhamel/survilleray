@@ -17,7 +17,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.11.0 // indirect
 	github.com/robfig/cron/v3 v3.0.0
 	github.com/stretchr/testify v1.4.0 // indirect
-	github.com/ugorji/go/codec v1.1.7 // indirect
+	github.com/ugorji/go v1.1.7 // indirect
 	github.com/xo/dburl v0.0.0-20190814034758-0192e0fb89d1
 	golang.org/x/crypto v0.0.0-20190911031432-227b76d455e7 // indirect
 	golang.org/x/net v0.0.0-20190909003024-a7b16738d86b // indirect

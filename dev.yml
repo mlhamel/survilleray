@@ -15,10 +15,12 @@ up:
       meet: createdb --username=postgres --host=survilleray.railgun survilleray_development
   - custom:
       name: Build migration tool
-      met?: bin/migrate
-      meet: go build -o bin/migrate cmd/migrate/main.go
-  - python: 3.6.5
-  - pip: [requirements.txt]
+      met?: bin/survilleray-migrate
+      meet: go build -o bin/survilleray-migrate cmd/migrate/main.go
+  - custom:
+      name: Build cron
+      met?: bin/survilleray-cron
+      meet: go build -o bin/survilleray-cron cmd/cron/main.go
   - custom:
       name: Load dependencies
       met?: go mod tidy
