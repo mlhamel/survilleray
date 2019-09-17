@@ -9,6 +9,7 @@ require (
 	github.com/go-logr/logr v0.1.0 // indirect
 	github.com/go-logr/stdr v0.0.0-20190808155957-db4f46c40425
 	github.com/golang/protobuf v1.3.2 // indirect
+	github.com/graphql-go/graphql v0.7.8
 	github.com/jinzhu/gorm v1.9.10
 	github.com/json-iterator/go v1.1.7 // indirect
 	github.com/kr/pretty v0.1.0 // indirect

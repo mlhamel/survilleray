@@ -36,7 +36,7 @@ func NewConfig() *Config {
 
 // DSN is the connexion key to the database
 func (c *Config) DSN() string {
-	return fmt.Sprintf("host=%s port=%s user=%s password=%s sslmode=disable dbname=%s",
+	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		c.Hostname(), c.Port(), c.Username(), c.Password(), c.Path())
 }
 
