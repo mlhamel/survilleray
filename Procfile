@@ -1,2 +1,1 @@
-cron: bin/cron
-web: bin/server
+web: bin/survilleray server
