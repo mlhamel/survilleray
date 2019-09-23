@@ -17,6 +17,7 @@ require (
 	github.com/mattn/go-isatty v0.0.9 // indirect
 	github.com/mattn/go-sqlite3 v1.11.0 // indirect
 	github.com/paulmach/orb v0.1.4
+	github.com/pkg/errors v0.8.1
 	github.com/stretchr/testify v1.4.0 // indirect
 	github.com/twpayne/go-geom v1.0.5 // indirect
 	github.com/ugorji/go v1.1.7 // indirect

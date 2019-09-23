@@ -3,13 +3,21 @@ package app
 import (
 	"fmt"
 
+	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"github.com/pkg/errors"
+
 	"github.com/mlhamel/survilleray/pkg/config"
 	"github.com/mlhamel/survilleray/pkg/migrations"
 )
 
 type MigrateApp struct {
 	cfg *config.Config
+}
+
+type migration struct {
+	db  *gorm.DB
+	err error
 }
 
 func NewMigrateApp(cfg *config.Config) *MigrateApp {
@@ -21,17 +29,21 @@ func NewMigrateApp(cfg *config.Config) *MigrateApp {
 func (m *MigrateApp) Run() error {
 	fmt.Printf("Migrating %s\n", m.cfg.DSN())
 
-	return m.Up()
+	return m.Migrate()
 }
 
-func (m *MigrateApp) Up() error {
-	db := m.cfg.DB()
-
-	e := migrations.CreateVector(db)
-
-	if e != nil {
-		return e
+func (m *migration) migrate(desc string, migrator func(*gorm.DB) error) {
+	if m.err == nil {
+		if err := migrator(m.db); err != nil {
+			m.err = errors.Wrapf(err, "Failed migrating: %s", desc)
+		}
 	}
+}
 
-	return nil
+func (m *MigrateApp) Migrate() error {
+	migrator := migration{db: m.cfg.DB()}
+
+	migrator.migrate("creating vector", migrations.CreateVector)
+
+	return migrator.err
 }

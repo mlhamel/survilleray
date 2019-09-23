@@ -9,6 +9,7 @@ import (
 
 func CreateVector(db *gorm.DB) error {
 	fmt.Println("... Creating vector table")
+
 	if db.HasTable(&models.Vector{}) {
 		return nil
 	}
