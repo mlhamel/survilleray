@@ -44,6 +44,7 @@ func (m *MigrateApp) Migrate() error {
 	migrator := migration{db: m.cfg.DB()}
 
 	migrator.migrate("creating vector", migrations.CreateVector)
+	migrator.migrate("enabling postgis", migrations.EnablePostgis)
 
 	return migrator.err
 }
