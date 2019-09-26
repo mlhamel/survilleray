@@ -46,6 +46,7 @@ func (m *MigrateApp) Migrate() error {
 	migrator.migrate("creating vector", migrations.CreateVector)
 	migrator.migrate("enabling postgis", migrations.EnablePostgis)
 	migrator.migrate("creating district", migrations.CreateDistrict)
+	migrator.migrate("creating villeray", migrations.CreateVilleray)
 
 	return migrator.err
 }
