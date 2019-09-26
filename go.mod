@@ -6,8 +6,6 @@ require (
 	github.com/denisenkom/go-mssqldb v0.0.0-20190905012053-7920e8ef8898 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/gin-gonic/gin v1.4.0
-	github.com/go-logr/logr v0.1.0 // indirect
-	github.com/go-logr/stdr v0.0.0-20190808155957-db4f46c40425
 	github.com/golang/protobuf v1.3.2 // indirect
 	github.com/graphql-go/graphql v0.7.8
 	github.com/jinzhu/gorm v1.9.10
@@ -16,10 +14,8 @@ require (
 	github.com/lib/pq v1.2.0 // indirect
 	github.com/mattn/go-isatty v0.0.9 // indirect
 	github.com/mattn/go-sqlite3 v1.11.0 // indirect
-	github.com/paulmach/orb v0.1.4
 	github.com/pkg/errors v0.8.1
 	github.com/stretchr/testify v1.4.0 // indirect
-	github.com/twpayne/go-geom v1.0.5 // indirect
 	github.com/ugorji/go v1.1.7 // indirect
 	github.com/urfave/cli v1.22.1
 	github.com/xo/dburl v0.0.0-20190814034758-0192e0fb89d1

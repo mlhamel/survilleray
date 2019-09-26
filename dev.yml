@@ -1,6 +1,7 @@
 name: survilleray
 env:
-    DATABASE_URL: "postgres://postgres@survilleray.railgun:5432/survilleray_development"
+    DATABASE_URL: "postgres://postgres:docker@survilleray.railgun:5432/survilleray_development"
+    PGPASSWORD: docker
 up:
   - homebrew:
     - openssl
@@ -15,7 +16,7 @@ up:
       meet: createdb --username=postgres --host=survilleray.railgun survilleray_development
   - custom:
       name: Build command line tools
-      met?: bin/survilleray
+      met?: test -f "bin/survilleray"
       meet: go build -o bin/survilleray cmd/migrate/main.go
   - custom:
       name: Load dependencies
