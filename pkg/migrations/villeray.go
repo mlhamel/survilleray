@@ -25,7 +25,7 @@ func CreateVilleray(db *gorm.DB) error {
 	db.Where("name = ?", NAME).First(&district).Count(&count)
 
 	if count > 0 {
-		fmt.Printf("    Already exists (%i)\n", count)
+		fmt.Printf("    Already exists (%d)\n", count)
 		return nil
 	}
 
