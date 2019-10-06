@@ -3,6 +3,7 @@ module github.com/mlhamel/survilleray
 go 1.12
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.3.2
 	github.com/denisenkom/go-mssqldb v0.0.0-20190905012053-7920e8ef8898 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/gin-gonic/gin v1.4.0
@@ -15,7 +16,7 @@ require (
 	github.com/mattn/go-isatty v0.0.9 // indirect
 	github.com/mattn/go-sqlite3 v1.11.0 // indirect
 	github.com/pkg/errors v0.8.1
-	github.com/stretchr/testify v1.4.0 // indirect
+	github.com/stretchr/testify v1.4.0
 	github.com/twpayne/go-geom v1.0.5
 	github.com/ugorji/go v1.1.7 // indirect
 	github.com/urfave/cli v1.22.1
