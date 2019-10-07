@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/jinzhu/gorm"
+	geom "github.com/twpayne/go-geom"
 )
 
 // Vector represent a flight vector from Opensky
@@ -43,4 +44,21 @@ func (v *Vector) BeforeSave() error {
 // String return the string representation of the vector
 func (v *Vector) String() string {
 	return fmt.Sprintf("(%s, %s, %f)", v.Icao24, v.CallSign, v.LastContact)
+}
+
+func (v *Vector) Point() *geom.Point {
+	return geom.NewPoint(geom.XY).MustSetCoords([]float64{v.Longitude, v.Latitude}).SetSRID(4326)
+}
+
+func (v *Vector) Overlaps(db *gorm.DB, district *District) (bool, error) {
+	multipolygon, err := district.Multipolygon()
+
+	if err != nil {
+		return false, err
+	}
+
+	bounds := multipolygon.Bounds()
+	layout := multipolygon.Layout()
+
+	return bounds.OverlapsPoint(layout, v.Point().Coords()), nil
 }

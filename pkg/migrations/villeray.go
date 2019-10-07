@@ -1,41 +1,36 @@
 package migrations
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 
 	"github.com/jinzhu/gorm"
 	"github.com/mlhamel/survilleray/pkg/models"
 	geom "github.com/twpayne/go-geom"
-	"github.com/twpayne/go-geom/encoding/ewkbhex"
 	"github.com/twpayne/go-geom/encoding/geojson"
+	"github.com/twpayne/go-geom/encoding/wkt"
 )
 
 func CreateVilleray(db *gorm.DB) error {
-	const NAME = "villeray"
 	const PATH = "data/districts/villeray.geojson"
-
-	var count int
-	var district models.District
+	const NAME = "villeray"
 
 	fmt.Println("... Creating villeray district")
 
-	db.Where("name = ?", NAME).First(&district).Count(&count)
-
-	if count > 0 {
-		fmt.Printf("    Already exists (%d)\n", count)
-		return nil
-	}
-
-	file, err := os.Open(PATH)
+	villeray, err := models.GetVilleray(db)
 
 	if err != nil {
 		return err
 	}
 
-	if err := json.NewDecoder(file).Decode(&district); err != nil {
+	if villeray != nil {
+		fmt.Printf("    Villeray already exists\n")
+		return nil
+	}
+
+	district, err := models.NewDistrictFromJson(NAME, PATH)
+
+	if err != nil {
 		return err
 	}
 
@@ -49,13 +44,13 @@ func CreateVilleray(db *gorm.DB) error {
 		return errors.New("geometry is not a multipolygon")
 	}
 
-	ewkbhexGeom, err := ewkbhex.Encode(multipolygon.SetSRID(4326), ewkbhex.XDR)
+	geomStr, err := wkt.Marshal(multipolygon.SetSRID(4326))
 
 	if err != nil {
 		return err
 	}
 
-	db.Debug().Exec("INSERT INTO districts(name, geometry) VALUES ($1, $2);", NAME, ewkbhexGeom)
+	db.Debug().Exec("INSERT INTO districts(name, geometry) VALUES ($1, ST_GeomFromText($2, 4326));", NAME, geomStr)
 
 	return db.Error
 }

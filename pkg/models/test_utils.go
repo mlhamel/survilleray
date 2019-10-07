@@ -11,9 +11,10 @@ import (
 
 type Suite struct {
 	suite.Suite
-	DB     *gorm.DB
-	mock   sqlmock.Sqlmock
-	vector *Vector
+	DB       *gorm.DB
+	mock     sqlmock.Sqlmock
+	vector   *Vector
+	district *District
 }
 
 func (s *Suite) SetupSuite() {
@@ -32,14 +33,19 @@ func (s *Suite) SetupSuite() {
 }
 
 func (s *Suite) BeforeTest(_, _ string) {
+	district, err := NewDistrictFromJson("villeray", "../../data/districts/villeray.geojson")
+
+	s.NoError(err, "Error while creating test district")
+
+	s.district = district
 	s.vector = &Vector{
 		Icao24:         "c07c71",
 		CallSign:       "NDL321",
 		OriginCountry:  "Canada",
 		TimePosition:   1568688174,
 		LastContact:    1568688174,
-		Longitude:      -73.408,
-		Latitude:       45.5166,
+		Longitude:      -73.6275776,
+		Latitude:       45.5339564,
 		GeoAltitude:    0,
 		OnGround:       true,
 		Velocity:       9.26,
