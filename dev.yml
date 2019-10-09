@@ -25,6 +25,7 @@ up:
 commands:
   test: go test -cover -race ./...
   lint: golangci-lint run
+  build: go build -o bin/survilleray cmd/survilleray/main.go
   db:migrate:
     desc: "Run all migrations"
     run: bin/survilleray migrate

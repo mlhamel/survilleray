@@ -3,7 +3,6 @@ package app
 import (
 	"fmt"
 
-	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/pkg/errors"
 
@@ -16,7 +15,7 @@ type MigrateApp struct {
 }
 
 type migration struct {
-	db  *gorm.DB
+	cfg *config.Config
 	err error
 }
 
@@ -32,16 +31,16 @@ func (m *MigrateApp) Run() error {
 	return m.Migrate()
 }
 
-func (m *migration) migrate(desc string, migrator func(*gorm.DB) error) {
+func (m *migration) migrate(desc string, migrator func(*config.Config) error) {
 	if m.err == nil {
-		if err := migrator(m.db); err != nil {
+		if err := migrator(m.cfg); err != nil {
 			m.err = errors.Wrapf(err, "Failed migrating: %s", desc)
 		}
 	}
 }
 
 func (m *MigrateApp) Migrate() error {
-	migrator := migration{db: m.cfg.DB()}
+	migrator := migration{cfg: m.cfg}
 
 	migrator.migrate("creating vector", migrations.CreateVector)
 	migrator.migrate("enabling postgis", migrations.EnablePostgis)

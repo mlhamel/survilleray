@@ -11,34 +11,22 @@ import (
 
 type Suite struct {
 	suite.Suite
-	DB       *gorm.DB
-	mock     sqlmock.Sqlmock
-	vector   *Vector
+	DB        *gorm.DB
+	mock      sqlmock.Sqlmock
+	vectors   VectorRepository
+	districts DistrictRepository
+}
+
+type testVectorRepository struct {
+	vector *Vector
+}
+
+type testDistrictRepository struct {
 	district *District
 }
 
-func (s *Suite) SetupSuite() {
-	var (
-		db  *sql.DB
-		err error
-	)
-
-	db, s.mock, err = sqlmock.New()
-	require.NoError(s.T(), err)
-
-	s.DB, err = gorm.Open("postgres", db)
-	require.NoError(s.T(), err)
-
-	s.DB.LogMode(true)
-}
-
-func (s *Suite) BeforeTest(_, _ string) {
-	district, err := NewDistrictFromJson("villeray", "../../data/districts/villeray.geojson")
-
-	s.NoError(err, "Error while creating test district")
-
-	s.district = district
-	s.vector = &Vector{
+func NewTestVectorRepository() VectorRepository {
+	return &testVectorRepository{vector: &Vector{
 		Icao24:         "c07c71",
 		CallSign:       "NDL321",
 		OriginCountry:  "Canada",
@@ -56,7 +44,47 @@ func (s *Suite) BeforeTest(_, _ string) {
 		Squawk:         "3147",
 		Spi:            false,
 		PositionSource: 0,
-	}
+	}}
+}
+
+func (t *testVectorRepository) Find() ([]*Vector, error) {
+	return []*Vector{t.vector}, nil
+}
+
+func (t *testVectorRepository) FindByName(name string) (*Vector, error) {
+	return t.vector, nil
+}
+
+func NewTestDistrictRepository() DistrictRepository {
+	district, _ := NewDistrictFromJson("villeray", "../../data/districts/villeray.geojson")
+
+	return &testDistrictRepository{district: district}
+}
+
+func (t *testDistrictRepository) Find() ([]*District, error) {
+	return []*District{t.district}, nil
+}
+
+func (t *testDistrictRepository) FindByName(name string) (*District, error) {
+	return t.district, nil
+}
+
+func (s *Suite) SetupSuite() {
+	var (
+		db  *sql.DB
+		err error
+	)
+
+	db, s.mock, err = sqlmock.New()
+	require.NoError(s.T(), err)
+
+	s.DB, err = gorm.Open("postgres", db)
+	require.NoError(s.T(), err)
+
+	s.DB.LogMode(true)
+
+	s.vectors = NewTestVectorRepository()
+	s.districts = NewTestDistrictRepository()
 }
 
 func (s *Suite) AfterTest(_, _ string) {

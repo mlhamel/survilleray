@@ -3,11 +3,13 @@ package migrations
 import (
 	"fmt"
 
-	"github.com/jinzhu/gorm"
+	"github.com/mlhamel/survilleray/pkg/config"
 )
 
-func EnablePostgis(db *gorm.DB) error {
+func EnablePostgis(cfg *config.Config) error {
 	fmt.Println("... Enabling postgis extension")
+
+	db := cfg.DB()
 
 	db.Exec("CREATE EXTENSION IF NOT EXISTS postgis")
 
