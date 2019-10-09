@@ -13,20 +13,20 @@ type Suite struct {
 	suite.Suite
 	DB        *gorm.DB
 	mock      sqlmock.Sqlmock
-	vectors   VectorRepository
+	points    PointRepository
 	districts DistrictRepository
 }
 
-type testVectorRepository struct {
-	vector *Vector
+type testPointRepository struct {
+	point *Point
 }
 
 type testDistrictRepository struct {
 	district *District
 }
 
-func NewTestVectorRepository() VectorRepository {
-	return &testVectorRepository{vector: &Vector{
+func NewTestPointRepository() PointRepository {
+	return &testPointRepository{point: &Point{
 		Icao24:         "c07c71",
 		CallSign:       "NDL321",
 		OriginCountry:  "Canada",
@@ -47,12 +47,12 @@ func NewTestVectorRepository() VectorRepository {
 	}}
 }
 
-func (t *testVectorRepository) Find() ([]*Vector, error) {
-	return []*Vector{t.vector}, nil
+func (t *testPointRepository) Find() ([]*Point, error) {
+	return []*Point{t.point}, nil
 }
 
-func (t *testVectorRepository) FindByName(name string) (*Vector, error) {
-	return t.vector, nil
+func (t *testPointRepository) FindByName(name string) (*Point, error) {
+	return t.point, nil
 }
 
 func NewTestDistrictRepository() DistrictRepository {
@@ -83,7 +83,7 @@ func (s *Suite) SetupSuite() {
 
 	s.DB.LogMode(true)
 
-	s.vectors = NewTestVectorRepository()
+	s.points = NewTestPointRepository()
 	s.districts = NewTestDistrictRepository()
 }
 

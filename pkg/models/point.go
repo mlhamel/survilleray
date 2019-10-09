@@ -9,8 +9,8 @@ import (
 	geom "github.com/twpayne/go-geom"
 )
 
-// Vector represent a flight vector from Opensky
-type Vector struct {
+// Point represent a flight point from Opensky
+type Point struct {
 	gorm.Model
 	Icao24         string `gorm:"not null;unique_index:idx_icao24_callsign_lastcontact"`
 	CallSign       string `gorm:"not null;unique_index:idx_icao24_callsign_lastcontact"`
@@ -31,12 +31,12 @@ type Vector struct {
 	PositionSource float64
 }
 
-type VectorRepository interface {
-	Find() ([]*Vector, error)
+type PointRepository interface {
+	Find() ([]*Point, error)
 }
 
 // BeforeSave is adding addional validations
-func (v *Vector) BeforeSave() error {
+func (v *Point) BeforeSave() error {
 	v.CallSign = strings.TrimSpace(v.CallSign)
 
 	if v.CallSign == "" {
@@ -46,16 +46,16 @@ func (v *Vector) BeforeSave() error {
 	return nil
 }
 
-// String return the string representation of the vector
-func (v *Vector) String() string {
+// String return the string representation of the point
+func (v *Point) String() string {
 	return fmt.Sprintf("(%s, %s, %f)", v.Icao24, v.CallSign, v.LastContact)
 }
 
-func (v *Vector) Point() *geom.Point {
+func (v *Point) Point() *geom.Point {
 	return geom.NewPoint(geom.XY).MustSetCoords([]float64{v.Longitude, v.Latitude}).SetSRID(4326)
 }
 
-func (v *Vector) FindOverlaps(district *District) (bool, error) {
+func (v *Point) FindOverlaps(district *District) (bool, error) {
 	polygons, err := district.Multipolygon()
 
 	if err != nil {
@@ -66,22 +66,22 @@ func (v *Vector) FindOverlaps(district *District) (bool, error) {
 		OverlapsPoint(polygons.Layout(), v.Point().Coords()), nil
 }
 
-func NewVectorRepository(cfg *config.Config) VectorRepository {
-	return &vectorRepository{cfg}
+func NewPointRepository(cfg *config.Config) PointRepository {
+	return &pointRepository{cfg}
 }
 
-type vectorRepository struct {
+type pointRepository struct {
 	cfg *config.Config
 }
 
-func (v *vectorRepository) Find() ([]*Vector, error) {
-	var vectors []*Vector
+func (v *pointRepository) Find() ([]*Point, error) {
+	var points []*Point
 
-	errors := v.cfg.DB().Find(&vectors).GetErrors()
+	errors := v.cfg.DB().Find(&points).GetErrors()
 
 	if len(errors) > 0 {
 		return nil, errors[0]
 	}
 
-	return vectors, nil
+	return points, nil
 }

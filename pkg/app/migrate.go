@@ -42,7 +42,7 @@ func (m *migration) migrate(desc string, migrator func(*config.Config) error) {
 func (m *MigrateApp) Migrate() error {
 	migrator := migration{cfg: m.cfg}
 
-	migrator.migrate("creating vector", migrations.CreateVector)
+	migrator.migrate("creating point", migrations.CreatePoint)
 	migrator.migrate("enabling postgis", migrations.EnablePostgis)
 	migrator.migrate("creating district", migrations.CreateDistrict)
 	migrator.migrate("creating villeray", migrations.CreateVilleray)

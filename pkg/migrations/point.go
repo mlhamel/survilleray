@@ -7,16 +7,16 @@ import (
 	"github.com/mlhamel/survilleray/pkg/models"
 )
 
-func CreateVector(cfg *config.Config) error {
-	fmt.Println("... Creating vector table")
+func CreatePoint(cfg *config.Config) error {
+	fmt.Println("... Creating point table")
 
 	db := cfg.DB()
 
-	if db.HasTable(&models.Vector{}) {
+	if db.HasTable(&models.Point{}) {
 		return nil
 	}
 
-	db.Debug().CreateTable(&models.Vector{})
+	db.Debug().CreateTable(&models.Point{})
 
 	return db.Error
 }

@@ -25,19 +25,19 @@ func NewRequest(url string) Request {
 }
 
 // GetPlanes a request to OpenSky
-func (r *Request) GetPlanes() (vectors []models.Vector, e error) {
+func (r *Request) GetPlanes() (points []models.Point, e error) {
 	parsedURL := fmt.Sprintf(r.url, 44, 47, -74, -72)
 	resp, err := http.Get(parsedURL)
 
 	if err != nil {
-		return vectors, err
+		return points, err
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
-		return vectors, err
+		return points, err
 	}
 
 	var results parsedRequest
@@ -45,7 +45,7 @@ func (r *Request) GetPlanes() (vectors []models.Vector, e error) {
 	err = json.Unmarshal([]byte(body), &results)
 
 	if err != nil {
-		return vectors, err
+		return points, err
 	}
 
 	for i := 0; i < len(results.States); i++ {
@@ -92,7 +92,7 @@ func (r *Request) GetPlanes() (vectors []models.Vector, e error) {
 			squawk = v[14].(string)
 		}
 
-		vector := models.Vector{
+		point := models.Point{
 			Icao24:         v[0].(string),
 			CallSign:       v[1].(string),
 			OriginCountry:  v[2].(string),
@@ -112,7 +112,7 @@ func (r *Request) GetPlanes() (vectors []models.Vector, e error) {
 			PositionSource: v[16].(float64),
 		}
 
-		vectors = append(vectors, vector)
+		points = append(points, point)
 	}
-	return vectors, nil
+	return points, nil
 }
