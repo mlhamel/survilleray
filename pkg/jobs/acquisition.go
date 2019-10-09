@@ -19,6 +19,7 @@ func NewAcquisition(c *config.Config) *AcquisitionJob {
 
 func (job *AcquisitionJob) Run() []error {
 	db := job.Config.DB()
+
 	var r = opensky.NewRequest(openskyURL)
 
 	vectors, err := r.GetPlanes()

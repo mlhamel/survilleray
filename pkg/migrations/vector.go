@@ -3,12 +3,14 @@ package migrations
 import (
 	"fmt"
 
-	"github.com/jinzhu/gorm"
+	"github.com/mlhamel/survilleray/pkg/config"
 	"github.com/mlhamel/survilleray/pkg/models"
 )
 
-func CreateVector(db *gorm.DB) error {
+func CreateVector(cfg *config.Config) error {
 	fmt.Println("... Creating vector table")
+
+	db := cfg.DB()
 
 	if db.HasTable(&models.Vector{}) {
 		return nil

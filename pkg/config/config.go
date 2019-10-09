@@ -15,6 +15,7 @@ type Config struct {
 	DatabaseURL string
 	parsedURL   *dburl.URL
 	httpPort    string
+	db          *gorm.DB
 }
 
 // NewConfig create a new configuration object
@@ -42,12 +43,18 @@ func (c *Config) DSN() string {
 
 // DB return the connexion to the dabase
 func (c *Config) DB() *gorm.DB {
+	if c.db != nil {
+		return c.db
+	}
+
 	db, err := gorm.Open("postgres", c.DSN())
 	if err != nil {
 		panic(err)
 	}
 
-	return db
+	c.db = db
+
+	return c.db
 }
 
 // Hostname of the configured database

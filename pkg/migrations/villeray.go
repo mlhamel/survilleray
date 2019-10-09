@@ -4,20 +4,22 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/jinzhu/gorm"
+	"github.com/mlhamel/survilleray/pkg/config"
 	"github.com/mlhamel/survilleray/pkg/models"
 	geom "github.com/twpayne/go-geom"
 	"github.com/twpayne/go-geom/encoding/geojson"
 	"github.com/twpayne/go-geom/encoding/wkt"
 )
 
-func CreateVilleray(db *gorm.DB) error {
+func CreateVilleray(cfg *config.Config) error {
 	const PATH = "data/districts/villeray.geojson"
-	const NAME = "villeray"
+
+	db := cfg.DB()
 
 	fmt.Println("... Creating villeray district")
 
-	villeray, err := models.GetVilleray(db)
+	repository := models.NewDistrictRepository(cfg)
+	villeray, err := repository.FindByName("villeray")
 
 	if err != nil {
 		return err
@@ -28,7 +30,7 @@ func CreateVilleray(db *gorm.DB) error {
 		return nil
 	}
 
-	district, err := models.NewDistrictFromJson(NAME, PATH)
+	district, err := models.NewDistrictFromJson("villeray", PATH)
 
 	if err != nil {
 		return err
@@ -50,7 +52,7 @@ func CreateVilleray(db *gorm.DB) error {
 		return err
 	}
 
-	db.Debug().Exec("INSERT INTO districts(name, geometry) VALUES ($1, ST_GeomFromText($2, 4326));", NAME, geomStr)
+	db.Debug().Exec("INSERT INTO districts(name, geometry) VALUES ($1, ST_GeomFromText($2, 4326));", "villeray", geomStr)
 
 	return db.Error
 }

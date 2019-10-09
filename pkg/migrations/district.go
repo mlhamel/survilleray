@@ -3,12 +3,14 @@ package migrations
 import (
 	"fmt"
 
-	"github.com/jinzhu/gorm"
+	"github.com/mlhamel/survilleray/pkg/config"
 	"github.com/mlhamel/survilleray/pkg/models"
 )
 
-func CreateDistrict(db *gorm.DB) error {
+func CreateDistrict(cfg *config.Config) error {
 	fmt.Println("... Creating district table")
+
+	db := cfg.DB()
 
 	if db.HasTable(&models.District{}) {
 		return nil

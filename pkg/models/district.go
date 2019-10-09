@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/jinzhu/gorm"
+	"github.com/mlhamel/survilleray/pkg/config"
 	geom "github.com/twpayne/go-geom"
 	"github.com/twpayne/go-geom/encoding/geojson"
 	"github.com/twpayne/go-geom/encoding/wkt"
@@ -17,14 +18,37 @@ type District struct {
 	Geometry json.RawMessage `gorm:"type:geometry(MULTIPOLYGON, 4326)"`
 }
 
-const VILLERAY = "villeray"
+type DistrictRepository interface {
+	Find() ([]*District, error)
+	FindByName(name string) (*District, error)
+}
 
-func GetVilleray(db *gorm.DB) (*District, error) {
+func NewDistrictRepository(cfg *config.Config) DistrictRepository {
+	return &districtRepository{cfg}
+}
+
+type districtRepository struct {
+	cfg *config.Config
+}
+
+func (d *districtRepository) Find() ([]*District, error) {
+	var districts []*District
+
+	errors := d.cfg.DB().Find(&districts).GetErrors()
+
+	if len(errors) > 0 {
+		return nil, errors[0]
+	}
+
+	return districts, nil
+}
+
+func (d *districtRepository) FindByName(name string) (*District, error) {
 	var district District
 
-	db.Where("name = ?", VILLERAY).First(&district)
+	d.cfg.DB().Where("name = ?", name).First(&district)
 
-	errors := db.GetErrors()
+	errors := d.cfg.DB().GetErrors()
 
 	if len(errors) > 0 {
 		return nil, errors[0]

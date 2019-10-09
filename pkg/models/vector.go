@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/jinzhu/gorm"
+	"github.com/mlhamel/survilleray/pkg/config"
 	geom "github.com/twpayne/go-geom"
 )
 
@@ -30,6 +31,10 @@ type Vector struct {
 	PositionSource float64
 }
 
+type VectorRepository interface {
+	Find() ([]*Vector, error)
+}
+
 // BeforeSave is adding addional validations
 func (v *Vector) BeforeSave() error {
 	v.CallSign = strings.TrimSpace(v.CallSign)
@@ -50,15 +55,33 @@ func (v *Vector) Point() *geom.Point {
 	return geom.NewPoint(geom.XY).MustSetCoords([]float64{v.Longitude, v.Latitude}).SetSRID(4326)
 }
 
-func (v *Vector) Overlaps(db *gorm.DB, district *District) (bool, error) {
-	multipolygon, err := district.Multipolygon()
+func (v *Vector) FindOverlaps(district *District) (bool, error) {
+	polygons, err := district.Multipolygon()
 
 	if err != nil {
 		return false, err
 	}
 
-	bounds := multipolygon.Bounds()
-	layout := multipolygon.Layout()
+	return polygons.Bounds().
+		OverlapsPoint(polygons.Layout(), v.Point().Coords()), nil
+}
 
-	return bounds.OverlapsPoint(layout, v.Point().Coords()), nil
+func NewVectorRepository(cfg *config.Config) VectorRepository {
+	return &vectorRepository{cfg}
+}
+
+type vectorRepository struct {
+	cfg *config.Config
+}
+
+func (v *vectorRepository) Find() ([]*Vector, error) {
+	var vectors []*Vector
+
+	errors := v.cfg.DB().Find(&vectors).GetErrors()
+
+	if len(errors) > 0 {
+		return nil, errors[0]
+	}
+
+	return vectors, nil
 }
