@@ -22,14 +22,14 @@ func (job *AcquisitionJob) Run() []error {
 
 	var r = opensky.NewRequest(openskyURL)
 
-	vectors, err := r.GetPlanes()
+	points, err := r.GetPlanes()
 
 	if err != nil {
 		return []error{err}
 	}
 
-	for i := 0; i < len(vectors); i++ {
-		v := vectors[i]
+	for i := 0; i < len(points); i++ {
+		v := points[i]
 
 		if !db.NewRecord(v) {
 			continue

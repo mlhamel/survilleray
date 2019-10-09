@@ -14,9 +14,9 @@ type GraphQLController struct {
 	Config *config.Config
 }
 
-var vectorType = graphql.NewObject(
+var pointType = graphql.NewObject(
 	graphql.ObjectConfig{
-		Name: "Vector",
+		Name: "Point",
 		Fields: graphql.Fields{
 			"icao24": &graphql.Field{
 				Type: graphql.String,
@@ -30,14 +30,14 @@ func queryType(c *config.Config) *graphql.Object {
 		graphql.ObjectConfig{
 			Name: "Query",
 			Fields: graphql.Fields{
-				"vectors": &graphql.Field{
-					Type:        graphql.NewList(vectorType),
-					Description: "Get vector list",
+				"points": &graphql.Field{
+					Type:        graphql.NewList(pointType),
+					Description: "Get point list",
 					Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-						var vectors []models.Vector
-						c.DB().Find(&vectors)
+						var points []models.Point
+						c.DB().Find(&points)
 
-						return vectors, nil
+						return points, nil
 					},
 				},
 			},
