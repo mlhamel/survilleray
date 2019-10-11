@@ -2,8 +2,8 @@ name: Go
 on: [push]
 jobs:
 
-  build:
-    name: Build
+  test:
+    name: Test
     runs-on: ubuntu-latest
     steps:
 
@@ -18,3 +18,9 @@ jobs:
 
     - name: Build
       run: go build -v -o ./bin/survilleray ./cmd/survilleray/main.go
+
+    - name: Migrate
+      run: ./bin/survilleray migrate
+
+    - name: Test
+      run: go test -cover -race ./...
