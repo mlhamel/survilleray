@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/go-spatial/geom"
 	"github.com/jinzhu/gorm"
 	"github.com/mlhamel/survilleray/pkg/config"
-	geom "github.com/twpayne/go-geom"
 )
 
 // Point represent a flight point from Opensky
@@ -31,8 +31,23 @@ type Point struct {
 	PositionSource float64
 }
 
+func CreatePoint(cfg *config.Config) error {
+	fmt.Println("... Creating point table")
+
+	db := cfg.DB()
+
+	if db.HasTable(&Point{}) {
+		return nil
+	}
+
+	db.CreateTable(&Point{})
+
+	return db.Error
+}
+
 type PointRepository interface {
-	Find() ([]*Point, error)
+	Find() ([]Point, error)
+	Insert(*Point) error
 }
 
 // BeforeSave is adding addional validations
@@ -52,18 +67,21 @@ func (p *Point) String() string {
 }
 
 func (p *Point) Geography() *geom.Point {
-	return geom.NewPoint(geom.XY).MustSetCoords([]float64{p.Longitude, p.Latitude}).SetSRID(4326)
+	return &geom.Point{p.Longitude, p.Latitude}
 }
 
 func (p *Point) FindOverlaps(district *District) (bool, error) {
-	polygons, err := district.Multipolygon()
-
+	geojson, err := district.GeoJson()
 	if err != nil {
 		return false, err
 	}
 
-	return polygons.Bounds().
-		OverlapsPoint(polygons.Layout(), p.Geography().Coords()), nil
+	extent, err := geom.NewExtentFromGeometry(geojson.MultiPolygon)
+	if err != nil {
+		return false, err
+	}
+
+	return extent.ContainsGeom(p.Geography())
 }
 
 func NewPointRepository(cfg *config.Config) PointRepository {
@@ -74,14 +92,18 @@ type pointRepository struct {
 	cfg *config.Config
 }
 
-func (p *pointRepository) Find() ([]*Point, error) {
-	var points []*Point
+func (p *pointRepository) Find() ([]Point, error) {
+	points := []Point{}
 
-	errors := p.cfg.DB().Find(&points).GetErrors()
+	err := p.cfg.DB().Find(&points).Error
 
-	if len(errors) > 0 {
-		return nil, errors[0]
+	if err != nil {
+		return nil, err
 	}
 
 	return points, nil
+}
+
+func (p *pointRepository) Insert(point *Point) error {
+	return p.cfg.DB().Create(point).Error
 }

@@ -18,9 +18,5 @@ func NewAcquisitionApp(cfg *config.Config) *AcquisitionApp {
 func (a *AcquisitionApp) Run() error {
 	job := jobs.NewAcquisition(a.cfg)
 
-	if errors := job.Run(); len(errors) > 0 {
-		return errors[0]
-	}
-
-	return nil
+	return job.Run()
 }

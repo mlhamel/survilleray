@@ -35,6 +35,15 @@ func NewConfig() *Config {
 	}
 }
 
+func NewConfigWithDB(db *gorm.DB) *Config {
+	return &Config{
+		DatabaseURL: "",
+		parsedURL:   nil,
+		httpPort:    getEnv("PORT", "8080"),
+		db:          db,
+	}
+}
+
 // DSN is the connexion key to the database
 func (c *Config) DSN() string {
 	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",

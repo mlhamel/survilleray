@@ -1,26 +1,38 @@
 package models
 
 import (
-	"encoding/json"
-	"errors"
-	"os"
+	"fmt"
 
+	"github.com/go-spatial/geom"
 	"github.com/jinzhu/gorm"
 	"github.com/mlhamel/survilleray/pkg/config"
-	geom "github.com/twpayne/go-geom"
-	"github.com/twpayne/go-geom/encoding/geojson"
-	"github.com/twpayne/go-geom/encoding/wkt"
+	"github.com/mlhamel/survilleray/pkg/geo"
 )
 
 type District struct {
 	gorm.Model
-	Name     string          `gorm:"size:20;unique_index"`
-	Geometry json.RawMessage `gorm:"type:geometry(MULTIPOLYGON, 4326)"`
+	Name     string `gorm:"size:20;unique_index"`
+	Geometry string `gorm:"type:geometry(MULTIPOLYGON, 4326)"`
+}
+
+func CreateDistrict(cfg *config.Config) error {
+	fmt.Println("... Creating district table")
+
+	db := cfg.DB()
+
+	if db.HasTable(&District{}) {
+		return nil
+	}
+
+	db.CreateTable(&District{})
+
+	return db.Error
 }
 
 type DistrictRepository interface {
 	Find() ([]*District, error)
 	FindByName(name string) (*District, error)
+	Insert(*District) error
 }
 
 func NewDistrictRepository(cfg *config.Config) DistrictRepository {
@@ -34,10 +46,13 @@ type districtRepository struct {
 func (d *districtRepository) Find() ([]*District, error) {
 	var districts []*District
 
-	errors := d.cfg.DB().Find(&districts).GetErrors()
+	err := d.cfg.DB().
+		Table("districts").
+		Select("name, ST_AsText(geometry) as geometry").
+		Find(&districts).Error
 
-	if len(errors) > 0 {
-		return nil, errors[0]
+	if err != nil {
+		return nil, err
 	}
 
 	return districts, nil
@@ -57,51 +72,38 @@ func (d *districtRepository) FindByName(name string) (*District, error) {
 	return &district, nil
 }
 
+func (d *districtRepository) Insert(district *District) error {
+	query := "INSERT INTO districts(name, geometry) VALUES ($1, ST_GeomFromText($2, 4326));"
+	return d.cfg.DB().Exec(query, "villeray", district.Geometry).Error
+}
+
 func NewDistrictFromJson(name string, path string) (*District, error) {
 	var district District
 
-	file, err := os.Open(path)
+	value, err := geo.NewGeojsonFromPath(path)
 
 	if err != nil {
-		return nil, err
-	}
-
-	if err := json.NewDecoder(file).Decode(&district); err != nil {
 		return nil, err
 	}
 
 	district.Name = name
+	district.Geometry = value.String
 
 	return &district, nil
 }
 
-func (d *District) Multipolygon() (*geom.MultiPolygon, error) {
-	var geometry geom.T
+func (d *District) GeoJson() (*geo.Geojson, error) {
+	geojson, err := geo.NewGeojsonFromRawMultiPolygon(d.Geometry)
 
-	if err := geojson.Unmarshal(d.Geometry, &geometry); err != nil {
+	return geojson, err
+}
+
+func (d *District) Multipolygon() (*geom.MultiPolygon, error) {
+	geojson, err := d.GeoJson()
+
+	if err != nil {
 		return nil, err
 	}
 
-	multipolygon, ok := geometry.(*geom.MultiPolygon)
-	if !ok {
-		return nil, errors.New("geometry is not a multipolygon")
-	}
-
-	return multipolygon, nil
-}
-
-func (d *District) Serialize() (string, error) {
-	multipolygon, err := d.Multipolygon()
-
-	if err != nil {
-		return "", err
-	}
-
-	multipolygonAsString, err := wkt.Marshal(multipolygon)
-
-	if err != nil {
-		return "", err
-	}
-
-	return multipolygonAsString, nil
+	return geojson.MultiPolygon, nil
 }

@@ -1,17 +1,18 @@
 package geo
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"os"
+	"strings"
 
-	geom "github.com/twpayne/go-geom"
-	"github.com/twpayne/go-geom/encoding/geojson"
-	"github.com/twpayne/go-geom/encoding/wkt"
+	"github.com/go-spatial/geom"
+	"github.com/go-spatial/geom/encoding/geojson"
+	"github.com/go-spatial/geom/encoding/wkt"
 )
 
 type Geojson struct {
-	Geometry     geom.T
 	MultiPolygon *geom.MultiPolygon
 	String       string
 }
@@ -32,24 +33,49 @@ func NewGeojsonFromPath(path string) (*Geojson, error) {
 }
 
 func NewGeojson(raw json.RawMessage) (*Geojson, error) {
-	var err error
 	var value Geojson
+	var geometry geojson.Geometry
+	var buf bytes.Buffer
 
-	if err := geojson.Unmarshal(raw, &value.Geometry); err != nil {
+	if err := geometry.UnmarshalJSON(raw); err != nil {
 		return nil, err
 	}
 
-	multipolygon, ok := value.Geometry.(*geom.MultiPolygon)
+	multipolygon, ok := geometry.Geometry.(geom.MultiPolygon)
 	if !ok {
 		return nil, errors.New("geometry is not a multipolygon")
 	}
 
-	value.MultiPolygon = multipolygon
-	value.String, err = wkt.Marshal(value.MultiPolygon.SetSRID(4326))
+	encoder := wkt.NewDefaultEncoder(&buf)
+	err := encoder.Encode(multipolygon)
 
 	if err != nil {
 		return nil, err
 	}
+
+	value.MultiPolygon = &multipolygon
+	value.String = buf.String()
+
+	return &value, nil
+}
+
+func NewGeojsonFromRawMultiPolygon(raw string) (*Geojson, error) {
+	var value Geojson
+
+	decoder := wkt.NewDecoder(strings.NewReader(raw))
+	geometry, err := decoder.Decode()
+
+	if err != nil {
+		return nil, err
+	}
+
+	multipolygon, ok := geometry.(geom.MultiPolygon)
+	if !ok {
+		return nil, errors.New("geometry is not a multipolygon")
+	}
+
+	value.MultiPolygon = &multipolygon
+	value.String = raw
 
 	return &value, nil
 }

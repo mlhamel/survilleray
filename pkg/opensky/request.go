@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 
 	"github.com/mlhamel/survilleray/pkg/models"
@@ -27,14 +28,22 @@ func NewRequest(url string) Request {
 // GetPlanes a request to OpenSky
 func (r *Request) GetPlanes() (points []models.Point, e error) {
 	parsedURL := fmt.Sprintf(r.url, 44, 47, -74, -72)
+
+	log.Printf("Getting data from %s", parsedURL)
+
 	resp, err := http.Get(parsedURL)
 
 	if err != nil {
 		return points, err
 	}
+
 	defer resp.Body.Close()
 
+	log.Print("Parsing body from response")
+
 	body, err := ioutil.ReadAll(resp.Body)
+
+	log.Printf("Got response with %s", body)
 
 	if err != nil {
 		return points, err
