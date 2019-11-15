@@ -7,11 +7,11 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgresql:
-        image: postgres:10.8
+        image: docker.io/kartoza/postgis:latest
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: docker
-          POSTGRES_DB: survilleray_test
+          POSTGRES_PASS: docker
+          POSTGRES_DBNAME: survilleray_test
         ports:
         - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
