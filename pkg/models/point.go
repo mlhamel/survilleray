@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/go-spatial/geom"
 	"github.com/jinzhu/gorm"
 	"github.com/mlhamel/survilleray/pkg/config"
-	geom "github.com/twpayne/go-geom"
 )
 
 // Point represent a flight point from Opensky
@@ -32,14 +32,15 @@ type Point struct {
 }
 
 type PointRepository interface {
-	Find() ([]*Point, error)
+	Find() ([]Point, error)
+	Insert(*Point) error
 }
 
 // BeforeSave is adding addional validations
-func (v *Point) BeforeSave() error {
-	v.CallSign = strings.TrimSpace(v.CallSign)
+func (p *Point) BeforeSave() error {
+	p.CallSign = strings.TrimSpace(p.CallSign)
 
-	if v.CallSign == "" {
+	if p.CallSign == "" {
 		return fmt.Errorf("CallSign cannot be empty")
 	}
 
@@ -47,23 +48,26 @@ func (v *Point) BeforeSave() error {
 }
 
 // String return the string representation of the point
-func (v *Point) String() string {
-	return fmt.Sprintf("(%s, %s, %f)", v.Icao24, v.CallSign, v.LastContact)
+func (p *Point) String() string {
+	return fmt.Sprintf("(%s, %s, %f)", p.Icao24, p.CallSign, p.LastContact)
 }
 
-func (v *Point) Point() *geom.Point {
-	return geom.NewPoint(geom.XY).MustSetCoords([]float64{v.Longitude, v.Latitude}).SetSRID(4326)
+func (p *Point) Geography() *geom.Point {
+	return &geom.Point{p.Longitude, p.Latitude}
 }
 
-func (v *Point) FindOverlaps(district *District) (bool, error) {
-	polygons, err := district.Multipolygon()
-
+func (p *Point) FindOverlaps(district *District) (bool, error) {
+	geojson, err := district.GeoJson()
 	if err != nil {
 		return false, err
 	}
 
-	return polygons.Bounds().
-		OverlapsPoint(polygons.Layout(), v.Point().Coords()), nil
+	extent, err := geom.NewExtentFromGeometry(geojson.MultiPolygon)
+	if err != nil {
+		return false, err
+	}
+
+	return extent.ContainsGeom(p.Geography())
 }
 
 func NewPointRepository(cfg *config.Config) PointRepository {
@@ -74,14 +78,18 @@ type pointRepository struct {
 	cfg *config.Config
 }
 
-func (v *pointRepository) Find() ([]*Point, error) {
-	var points []*Point
+func (p *pointRepository) Find() ([]Point, error) {
+	points := []Point{}
 
-	errors := v.cfg.DB().Find(&points).GetErrors()
+	err := p.cfg.DB().Find(&points).Error
 
-	if len(errors) > 0 {
-		return nil, errors[0]
+	if err != nil {
+		return nil, err
 	}
 
 	return points, nil
+}
+
+func (p *pointRepository) Insert(point *Point) error {
+	return p.cfg.DB().Create(point).Error
 }

@@ -1,7 +1,7 @@
 package jobs
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/mlhamel/survilleray/pkg/config"
 	"github.com/mlhamel/survilleray/pkg/opensky"
@@ -17,7 +17,7 @@ func NewAcquisition(c *config.Config) *AcquisitionJob {
 	return &AcquisitionJob{Config: c}
 }
 
-func (job *AcquisitionJob) Run() []error {
+func (job *AcquisitionJob) Run() error {
 	db := job.Config.DB()
 
 	var r = opensky.NewRequest(openskyURL)
@@ -25,7 +25,7 @@ func (job *AcquisitionJob) Run() []error {
 	points, err := r.GetPlanes()
 
 	if err != nil {
-		return []error{err}
+		return err
 	}
 
 	for i := 0; i < len(points); i++ {
@@ -34,18 +34,17 @@ func (job *AcquisitionJob) Run() []error {
 		if !db.NewRecord(v) {
 			continue
 		}
-		db.Create(&v)
 
-		errors := db.GetErrors()
+		log.Printf("Inserting point with `%s`", v.String())
 
-		if len(errors) > 0 {
-			return errors
+		err := db.Create(&v).Error
+
+		if err != nil {
+			log.Printf("Cannot insert point for %s, error is %s", v.Icao24, err)
 		}
-
-		fmt.Printf("Inserted: %s\n", v.String())
 	}
 
 	defer db.Close()
 
-	return []error{}
+	return nil
 }

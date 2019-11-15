@@ -20,8 +20,8 @@ type Config struct {
 
 // NewConfig create a new configuration object
 func NewConfig() *Config {
-	url := getEnv("DATABASE_URL", "")
-	httpPort := getEnv("PORT", "8080")
+	url := GetEnv("DATABASE_URL", "")
+	httpPort := GetEnv("PORT", "8080")
 	parsedURL, err := dburl.Parse(url)
 
 	if err != nil {
@@ -32,6 +32,15 @@ func NewConfig() *Config {
 		DatabaseURL: url,
 		parsedURL:   parsedURL,
 		httpPort:    httpPort,
+	}
+}
+
+func NewConfigWithDB(db *gorm.DB) *Config {
+	return &Config{
+		DatabaseURL: "",
+		parsedURL:   nil,
+		httpPort:    GetEnv("PORT", "8080"),
+		db:          db,
 	}
 }
 
@@ -88,6 +97,23 @@ func (c *Config) Password() string {
 	return p
 }
 
+// Env return the current run level
+func (c *Config) Env() string {
+	env := os.Getenv("ENV")
+	if env == "" {
+		return "development"
+	}
+	return env
+}
+
+// GetEnv return the current `key` value or `fallback`.
+func GetEnv(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
+}
+
 func hostname(hostport string) string {
 	colon := strings.IndexByte(hostport, ':')
 	if colon == -1 {
@@ -111,11 +137,4 @@ func hostport(hostport string) string {
 		return ""
 	}
 	return hostport[colon+len(":"):]
-}
-
-func getEnv(key, fallback string) string {
-	if value, ok := os.LookupEnv(key); ok {
-		return value
-	}
-	return fallback
 }

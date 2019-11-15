@@ -1,15 +1,5 @@
 package models
 
-import (
-	"testing"
-
-	"github.com/stretchr/testify/suite"
-)
-
-func TestInit(t *testing.T) {
-	suite.Run(t, new(Suite))
-}
-
 func (s *Suite) TestString() {
 	points, err := s.points.Find()
 
@@ -20,7 +10,8 @@ func (s *Suite) TestString() {
 func (s *Suite) TestFindOverlaps() {
 	points, err := s.points.Find()
 	districts, err := s.districts.Find()
-	overlaps, err := points[0].FindOverlaps(districts[0])
+	first := districts[0]
+	overlaps, err := points[0].FindOverlaps(first)
 
 	s.NoError(err, "Cannot find overlaps")
 	s.True(overlaps, "Overlaps is %t", overlaps)

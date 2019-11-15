@@ -1,6 +1,7 @@
 name: survilleray
 env:
     DATABASE_URL: "postgres://postgres:docker@survilleray.railgun:5432/survilleray_development"
+    DATABASE_TEST_URL: "postgres://postgres:docker@survilleray.railgun:5432/survilleray_test"
     PGPASSWORD: docker
 up:
   - homebrew:
@@ -14,6 +15,9 @@ up:
       name: Create PostgreSQL database
       met?: psql --username=postgres --host=survilleray.railgun -lqt | cut -d \| -f 1 | grep -qw survilleray_development
       meet: createdb --username=postgres --host=survilleray.railgun survilleray_development
+      name: Create PostgreSQL test database
+      met?: psql --username=postgres --host=survilleray.railgun -lqt | cut -d \| -f 1 | grep -qw survilleray_test
+      meet: createdb --username=postgres --host=survilleray.railgun survilleray_test
   - custom:
       name: Build command line tools
       met?: test -f "bin/survilleray"
@@ -23,11 +27,14 @@ up:
       met?: go mod tidy
       meet: go mod tidy
 commands:
-  test: go test -cover -race ./...
-  lint: golangci-lint run
+  acquire: bin/survilleray acquire
   build: go build -o bin/survilleray cmd/survilleray/main.go
   db:migrate:
     desc: "Run all migrations"
     run: bin/survilleray migrate
+  lint: golangci-lint run
+  test: DATABASE_URL=$DATABASE_TEST_URL go test -cover -race ./...
+  vectorize: bin/survilleray vectorize
+
 
 

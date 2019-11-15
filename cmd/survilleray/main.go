@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 
 	"github.com/urfave/cli"
@@ -35,10 +36,17 @@ func main() {
 				return serverApp.Run()
 			},
 		},
+		{
+			Name: "vectorize",
+			Action: func(c *cli.Context) error {
+				vectorizeApp := app.NewVectorizeApp(cfg)
+				return vectorizeApp.Run()
+			},
+		},
 	}
 
 	err := cliApp.Run(os.Args)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
