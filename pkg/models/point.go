@@ -31,20 +31,6 @@ type Point struct {
 	PositionSource float64
 }
 
-func CreatePoint(cfg *config.Config) error {
-	fmt.Println("... Creating point table")
-
-	db := cfg.DB()
-
-	if db.HasTable(&Point{}) {
-		return nil
-	}
-
-	db.CreateTable(&Point{})
-
-	return db.Error
-}
-
 type PointRepository interface {
 	Find() ([]Point, error)
 	Insert(*Point) error

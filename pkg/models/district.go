@@ -1,8 +1,6 @@
 package models
 
 import (
-	"fmt"
-
 	"github.com/go-spatial/geom"
 	"github.com/jinzhu/gorm"
 	"github.com/mlhamel/survilleray/pkg/config"
@@ -13,20 +11,6 @@ type District struct {
 	gorm.Model
 	Name     string `gorm:"size:20;unique_index"`
 	Geometry string `gorm:"type:geometry(MULTIPOLYGON, 4326)"`
-}
-
-func CreateDistrict(cfg *config.Config) error {
-	fmt.Println("... Creating district table")
-
-	db := cfg.DB()
-
-	if db.HasTable(&District{}) {
-		return nil
-	}
-
-	db.CreateTable(&District{})
-
-	return db.Error
 }
 
 type DistrictRepository interface {
@@ -61,15 +45,9 @@ func (d *districtRepository) Find() ([]*District, error) {
 func (d *districtRepository) FindByName(name string) (*District, error) {
 	var district District
 
-	d.cfg.DB().Where("name = ?", name).First(&district)
+	err := d.cfg.DB().Where("name = ?", name).First(&district).Error
 
-	errors := d.cfg.DB().GetErrors()
-
-	if len(errors) > 0 {
-		return nil, errors[0]
-	}
-
-	return &district, nil
+	return &district, err
 }
 
 func (d *districtRepository) Insert(district *District) error {

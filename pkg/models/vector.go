@@ -1,8 +1,6 @@
 package models
 
 import (
-	"fmt"
-
 	"github.com/jinzhu/gorm"
 	"github.com/mlhamel/survilleray/pkg/config"
 )
@@ -14,19 +12,6 @@ type Vector struct {
 	Country  string  `gorm:"not null"`
 	Closed   bool    `gorm:"default:false"`
 	Points   []Point `gorm:"many2many:vector_points"`
-}
-
-func CreateVector(cfg *config.Config) error {
-	fmt.Println("... Creating vector table")
-
-	db := cfg.DB()
-
-	if db.HasTable(&Vector{}) {
-		fmt.Println("	Vector already exists")
-		return nil
-	}
-
-	return db.CreateTable(&Vector{}).Error
 }
 
 type VectorRepository interface {

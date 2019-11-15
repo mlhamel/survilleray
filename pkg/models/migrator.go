@@ -25,8 +25,8 @@ func Migrate(cfg *config.Config) error {
 	migrator.migrate("creating point", CreatePoint)
 	migrator.migrate("enabling postgis", EnablePostgis)
 	migrator.migrate("creating district", CreateDistrict)
-	migrator.migrate("creating villeray", CreateVilleray)
 	migrator.migrate("creating vector", CreateVector)
+	migrator.migrate("creating villeray", CreateVilleray)
 
 	return migrator.err
 }
