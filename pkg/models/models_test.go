@@ -22,7 +22,7 @@ func TestVectorRepository(t *testing.T) {
 }
 
 func (s *Suite) SetupSuite() {
-	orm, err := config.NewTestDatabase("postgres://postgres:docker@survilleray.railgun:5432/survilleray_test")
+	orm, err := config.NewTestDatabase(config.GetEnv("DATABASE_URL", ""))
 
 	if err != nil {
 		panic(err)

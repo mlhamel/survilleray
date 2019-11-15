@@ -20,7 +20,7 @@ func SetupSuite(s Suite) {
 		err error
 	)
 
-	orm, err = config.NewTestDatabase("postgres://postgres:docker@survilleray.railgun:5432/survilleray_test")
+	orm, err = config.NewTestDatabase(config.GetEnv("DATABASE_URL", ""))
 
 	if err != nil {
 		panic(err)
