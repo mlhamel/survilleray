@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 
+	"github.com/jinzhu/gorm"
 	"github.com/mlhamel/survilleray/pkg/config"
 )
 
@@ -67,12 +68,12 @@ func CreateVilleray(cfg *config.Config) error {
 	repository := NewDistrictRepository(cfg)
 	villeray, err := repository.FindByName("villeray")
 
-	if err != nil {
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return err
 	}
 
 	if villeray != nil {
-		fmt.Printf("    Villeray already exists\n")
+		fmt.Printf("    Villeray already exists with ID: %d\n", villeray.ID)
 		return nil
 	}
 

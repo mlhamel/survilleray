@@ -47,7 +47,11 @@ func (d *districtRepository) FindByName(name string) (*District, error) {
 
 	err := d.cfg.DB().Where("name = ?", name).First(&district).Error
 
-	return &district, err
+	if err != nil {
+		return nil, err
+	}
+
+	return &district, nil
 }
 
 func (d *districtRepository) Insert(district *District) error {
