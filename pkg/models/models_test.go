@@ -71,25 +71,24 @@ func (s *Suite) SetupTest() {
 
 	err = s.points.Insert(&point)
 
-	district, err := NewDistrictFromJson("villeray", "villeray.geojson")
-
 	if err != nil {
 		panic(err)
 	}
 
-	err = s.districts.Insert(district)
-
-	if err != nil {
-		panic(err)
-	}
-
-	s.vectors.Insert(&Vector{
+	vector := Vector{
 		Icao24:   "c07c71",
 		CallSign: "NDL321",
 		Country:  "Canada",
 		Closed:   false,
-		Points:   []Point{point},
-	})
+	}
+
+	s.vectors.Insert(&vector)
+
+	if err != nil {
+		panic(err)
+	}
+
+	err = s.vectors.AppendPoints(&vector, []*Point{&point})
 
 	if err != nil {
 		panic(err)

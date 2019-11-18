@@ -47,7 +47,11 @@ func (d *districtRepository) FindByName(name string) (*District, error) {
 
 	err := d.cfg.DB().Where("name = ?", name).First(&district).Error
 
-	return &district, err
+	if err != nil {
+		return nil, err
+	}
+
+	return &district, nil
 }
 
 func (d *districtRepository) Insert(district *District) error {
@@ -55,17 +59,17 @@ func (d *districtRepository) Insert(district *District) error {
 	return d.cfg.DB().Exec(query, "villeray", district.Geometry).Error
 }
 
-func NewDistrictFromJson(name string, path string) (*District, error) {
+func NewDistrictFromJson(name string, value string) (*District, error) {
 	var district District
 
-	value, err := geo.NewGeojsonFromPath(path)
+	geojson, err := geo.NewGeojsonFromValue(value)
 
 	if err != nil {
 		return nil, err
 	}
 
 	district.Name = name
-	district.Geometry = value.String
+	district.Geometry = geojson.String
 
 	return &district, nil
 }

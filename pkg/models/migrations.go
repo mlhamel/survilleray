@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 
+	"github.com/jinzhu/gorm"
 	"github.com/mlhamel/survilleray/pkg/config"
 )
 
@@ -54,12 +55,10 @@ func CreateVector(cfg *config.Config) error {
 		return nil
 	}
 
-	return db.CreateTable(&Vector{}).Error
+	return db.AutoMigrate(&Vector{}).Error
 }
 
 func CreateVilleray(cfg *config.Config) error {
-	const PATH = "data/districts/villeray.geojson"
-
 	db := cfg.DB()
 
 	fmt.Println("... Creating villeray district")
@@ -67,16 +66,20 @@ func CreateVilleray(cfg *config.Config) error {
 	repository := NewDistrictRepository(cfg)
 	villeray, err := repository.FindByName("villeray")
 
-	if err != nil {
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return err
 	}
 
 	if villeray != nil {
-		fmt.Printf("    Villeray already exists\n")
+		fmt.Printf("    Villeray already exists with ID: %d\n", villeray.ID)
 		return nil
 	}
 
-	district, err := NewDistrictFromJson("villeray", PATH)
+	district, err := NewDistrictFromJson("villeray", VILLERAY)
+
+	if err != nil {
+		return err
+	}
 
 	query := "INSERT INTO districts(name, geometry) VALUES ($1, ST_GeomFromText($2, 4326));"
 

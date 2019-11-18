@@ -18,6 +18,7 @@ type VectorRepository interface {
 	Find() ([]*Vector, error)
 	FindByPoint(*Point) ([]*Vector, error)
 	Insert(*Vector) error
+	AppendPoints(*Vector, []*Point) error
 }
 
 func NewVectorRepository(cfg *config.Config) VectorRepository {
@@ -59,4 +60,8 @@ func (v *vectoryRepository) FindByPoint(point *Point) ([]*Vector, error) {
 
 func (v *vectoryRepository) Insert(vector *Vector) error {
 	return v.cfg.DB().Create(vector).Error
+}
+
+func (v *vectoryRepository) AppendPoints(vector *Vector, points []*Point) error {
+	return v.cfg.DB().Model(vector).Association("Points").Append(points).Error
 }

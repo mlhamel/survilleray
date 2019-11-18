@@ -32,6 +32,16 @@ func NewGeojsonFromPath(path string) (*Geojson, error) {
 	return NewGeojson(raw["geometry"])
 }
 
+func NewGeojsonFromValue(value string) (*Geojson, error) {
+	var raw map[string]json.RawMessage
+
+	if err := json.NewDecoder(strings.NewReader(value)).Decode(&raw); err != nil {
+		return nil, err
+	}
+
+	return NewGeojson(raw["geometry"])
+}
+
 func NewGeojson(raw json.RawMessage) (*Geojson, error) {
 	var value Geojson
 	var geometry geojson.Geometry
