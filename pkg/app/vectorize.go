@@ -1,20 +1,20 @@
 package app
 
 import (
-	"github.com/mlhamel/survilleray/pkg/config"
 	"github.com/mlhamel/survilleray/pkg/jobs"
+	"github.com/mlhamel/survilleray/pkg/runtime"
 )
 
 type VectorizeApp struct {
-	cfg *config.Config
+	context *runtime.Context
 }
 
-func NewVectorizeApp(cfg *config.Config) *VectorizeApp {
-	return &VectorizeApp{cfg: cfg}
+func NewVectorizeApp(context *runtime.Context) *VectorizeApp {
+	return &VectorizeApp{context: context}
 }
 
 func (a *VectorizeApp) Run() error {
-	job := jobs.NewVectorizeJob(a.cfg)
+	job := jobs.NewVectorizeJob(a.context)
 
 	return job.Run()
 }

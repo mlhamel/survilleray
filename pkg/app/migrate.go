@@ -5,25 +5,20 @@ import (
 
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 
-	"github.com/mlhamel/survilleray/pkg/config"
 	"github.com/mlhamel/survilleray/pkg/models"
+	"github.com/mlhamel/survilleray/pkg/runtime"
 )
 
 type MigrateApp struct {
-	cfg *config.Config
+	context *runtime.Context
 }
 
-func NewMigrateApp(cfg *config.Config) *MigrateApp {
-	return &MigrateApp{
-		cfg: cfg,
-	}
+func NewMigrateApp(context *runtime.Context) *MigrateApp {
+	return &MigrateApp{context}
 }
 
 func (m *MigrateApp) Run() error {
-	fmt.Printf("Migrating %s\n", m.cfg.DSN())
+	fmt.Printf("Migrating %s\n", m.context.Config().DSN())
 
-	return models.Migrate(m.cfg)
+	return models.Migrate(m.context)
 }
-
-
-

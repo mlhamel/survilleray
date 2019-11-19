@@ -4,42 +4,43 @@ import (
 	"log"
 	"os"
 
-	"github.com/urfave/cli"
-
 	"github.com/mlhamel/survilleray/pkg/app"
 	"github.com/mlhamel/survilleray/pkg/config"
+	"github.com/mlhamel/survilleray/pkg/runtime"
+	"github.com/urfave/cli"
 )
 
 func main() {
 	cliApp := cli.NewApp()
 	cfg := config.NewConfig()
+	context := runtime.NewContext(cfg, nil)
 
 	cliApp.Commands = []cli.Command{
 		{
 			Name: "acquire",
 			Action: func(c *cli.Context) error {
-				acquisitionApp := app.NewAcquisitionApp(cfg)
+				acquisitionApp := app.NewAcquisitionApp(context)
 				return acquisitionApp.Run()
 			},
 		},
 		{
 			Name: "migrate",
 			Action: func(c *cli.Context) error {
-				migrateApp := app.NewMigrateApp(cfg)
+				migrateApp := app.NewMigrateApp(context)
 				return migrateApp.Run()
 			},
 		},
 		{
 			Name: "server",
 			Action: func(c *cli.Context) error {
-				serverApp := app.NewServerApp(cfg)
+				serverApp := app.NewServerApp(context)
 				return serverApp.Run()
 			},
 		},
 		{
 			Name: "vectorize",
 			Action: func(c *cli.Context) error {
-				vectorizeApp := app.NewVectorizeApp(cfg)
+				vectorizeApp := app.NewVectorizeApp(context)
 				return vectorizeApp.Run()
 			},
 		},

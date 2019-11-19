@@ -4,17 +4,19 @@ import (
 	"database/sql/driver"
 	"testing"
 
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/mlhamel/survilleray/pkg/config"
+	"github.com/mlhamel/survilleray/pkg/runtime"
 	"github.com/stretchr/testify/suite"
 )
 
 type Suite struct {
 	suite.Suite
-	cfg       *config.Config
 	points    PointRepository
 	vectors   VectorRepository
 	districts DistrictRepository
 	tx        driver.Tx
+	context   *runtime.Context
 }
 
 func TestVectorRepository(t *testing.T) {
@@ -28,10 +30,12 @@ func (s *Suite) SetupSuite() {
 		panic(err)
 	}
 
-	s.cfg = config.NewConfigWithDB(orm)
-	s.points = NewPointRepository(s.cfg)
-	s.vectors = NewVectorRepository(s.cfg)
-	s.districts = NewDistrictRepository(s.cfg)
+	cfg := config.NewConfig()
+	s.context = runtime.NewContext(cfg, orm)
+
+	s.points = NewPointRepository(s.context)
+	s.vectors = NewVectorRepository(s.context)
+	s.districts = NewDistrictRepository(s.context)
 
 	if err != nil {
 		panic(err)
@@ -39,7 +43,7 @@ func (s *Suite) SetupSuite() {
 }
 
 func (s *Suite) SetupTest() {
-	tx, err := s.cfg.DB().DB().Begin()
+	tx, err := s.context.Database().DB().Begin()
 
 	if err != nil {
 		panic(err)
@@ -47,7 +51,7 @@ func (s *Suite) SetupTest() {
 
 	s.tx = tx
 
-	Migrate(s.cfg)
+	Migrate(s.context)
 
 	point := Point{
 		Icao24:         "c07c71",

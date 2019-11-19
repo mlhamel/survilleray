@@ -2,7 +2,7 @@ package models
 
 import (
 	"github.com/jinzhu/gorm"
-	"github.com/mlhamel/survilleray/pkg/config"
+	"github.com/mlhamel/survilleray/pkg/runtime"
 )
 
 type Vector struct {
@@ -21,18 +21,18 @@ type VectorRepository interface {
 	AppendPoints(*Vector, []*Point) error
 }
 
-func NewVectorRepository(cfg *config.Config) VectorRepository {
-	return &vectoryRepository{cfg}
+func NewVectorRepository(context *runtime.Context) VectorRepository {
+	return &vectoryRepository{context}
 }
 
 type vectoryRepository struct {
-	cfg *config.Config
+	context *runtime.Context
 }
 
 func (v *vectoryRepository) Find() ([]*Vector, error) {
 	var vectors []*Vector
 
-	err := v.cfg.DB().Find(&vectors).Error
+	err := v.context.Database().Find(&vectors).Error
 
 	if err != nil {
 		return nil, err
@@ -44,7 +44,7 @@ func (v *vectoryRepository) Find() ([]*Vector, error) {
 func (v *vectoryRepository) FindByPoint(point *Point) ([]*Vector, error) {
 	var vectors []*Vector
 
-	err := v.cfg.DB().Where(map[string]interface{}{
+	err := v.context.Database().Where(map[string]interface{}{
 		"icao24":    point.Icao24,
 		"call_sign": point.CallSign,
 		"country":   point.OriginCountry,
@@ -59,9 +59,9 @@ func (v *vectoryRepository) FindByPoint(point *Point) ([]*Vector, error) {
 }
 
 func (v *vectoryRepository) Insert(vector *Vector) error {
-	return v.cfg.DB().Create(vector).Error
+	return v.context.Database().Create(vector).Error
 }
 
 func (v *vectoryRepository) AppendPoints(vector *Vector, points []*Point) error {
-	return v.cfg.DB().Model(vector).Association("Points").Append(points).Error
+	return v.context.Database().Model(vector).Association("Points").Append(points).Error
 }

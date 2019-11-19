@@ -2,25 +2,24 @@ package models
 
 import (
 	"github.com/pkg/errors"
-
-	"github.com/mlhamel/survilleray/pkg/config"
+	"github.com/mlhamel/survilleray/pkg/runtime"
 )
 
 type migration struct {
-	cfg *config.Config
-	err error
+	context *runtime.Context
+	err     error
 }
 
-func (m *migration) migrate(desc string, migrator func(*config.Config) error) {
+func (m *migration) migrate(desc string, migrator func(*runtime.Context) error) {
 	if m.err == nil {
-		if err := migrator(m.cfg); err != nil {
+		if err := migrator(m.context); err != nil {
 			m.err = errors.Wrapf(err, "Failed migrating: %s", desc)
 		}
 	}
 }
 
-func Migrate(cfg *config.Config) error {
-	migrator := migration{cfg: cfg}
+func Migrate(context *runtime.Context) error {
+	migrator := migration{context: context}
 
 	migrator.migrate("creating point", CreatePoint)
 	migrator.migrate("enabling postgis", EnablePostgis)

@@ -3,20 +3,20 @@ package jobs
 import (
 	"fmt"
 
-	"github.com/mlhamel/survilleray/pkg/config"
 	"github.com/mlhamel/survilleray/pkg/models"
+	"github.com/mlhamel/survilleray/pkg/runtime"
 )
 
 type VectorizeJob struct {
-	cfg *config.Config
+	context *runtime.Context
 }
 
-func NewVectorizeJob(cfg *config.Config) *VectorizeJob {
-	return &VectorizeJob{cfg: cfg}
+func NewVectorizeJob(context *runtime.Context) *VectorizeJob {
+	return &VectorizeJob{context}
 }
 
 func (job *VectorizeJob) Run() error {
-	repository := models.NewPointRepository(job.cfg)
+	repository := models.NewPointRepository(job.context)
 	points, err := repository.Find()
 
 	if err != nil {

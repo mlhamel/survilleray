@@ -4,19 +4,19 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mlhamel/survilleray/pkg/config"
+	"github.com/mlhamel/survilleray/pkg/runtime"
 	"github.com/mlhamel/survilleray/pkg/server"
 )
 
 type ServerApp struct {
-	cfg    *config.Config
-	router *gin.Engine
+	context *runtime.Context
+	router  *gin.Engine
 }
 
-func NewServerApp(cfg *config.Config) *ServerApp {
+func NewServerApp(context *runtime.Context) *ServerApp {
 	return &ServerApp{
-		cfg:    cfg,
-		router: server.NewRouter(),
+		context: context,
+		router:  server.NewRouter(),
 	}
 }
 
@@ -25,5 +25,5 @@ func (s *ServerApp) Run() error {
 }
 
 func (s *ServerApp) connexionString() string {
-	return fmt.Sprintf(":%s", s.cfg.HttpPort())
+	return fmt.Sprintf(":%s", s.context.Config().HttpPort())
 }
