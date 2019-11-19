@@ -4,66 +4,50 @@ import (
 	"fmt"
 
 	"github.com/jinzhu/gorm"
-	"github.com/mlhamel/survilleray/pkg/config"
+	"github.com/mlhamel/survilleray/pkg/runtime"
 )
 
-func CreatePoint(cfg *config.Config) error {
+func CreatePoint(context *runtime.Context) error {
 	fmt.Println("... Creating point table")
 
-	db := cfg.DB()
-
-	if db.HasTable(&Point{}) {
+	if context.Database().HasTable(&Point{}) {
 		return nil
 	}
 
-	db.CreateTable(&Point{})
-
-	return db.Error
+	return context.Database().CreateTable(&Point{}).Error
 }
 
-func CreateDistrict(cfg *config.Config) error {
+func CreateDistrict(context *runtime.Context) error {
 	fmt.Println("... Creating district table")
 
-	db := cfg.DB()
-
-	if db.HasTable(&District{}) {
+	if context.Database().HasTable(&District{}) {
 		return nil
 	}
 
-	db.CreateTable(&District{})
-
-	return db.Error
+	return context.Database().CreateTable(&District{}).Error
 }
 
-func EnablePostgis(cfg *config.Config) error {
+func EnablePostgis(context *runtime.Context) error {
 	fmt.Println("... Enabling postgis extension")
 
-	db := cfg.DB()
-
-	db.Exec("CREATE EXTENSION IF NOT EXISTS postgis")
-
-	return db.Error
+	return context.Database().Exec("CREATE EXTENSION IF NOT EXISTS postgis").Error
 }
 
-func CreateVector(cfg *config.Config) error {
+func CreateVector(context *runtime.Context) error {
 	fmt.Println("... Creating vector table")
 
-	db := cfg.DB()
-
-	if db.HasTable(&Vector{}) {
+	if context.Database().HasTable(&Vector{}) {
 		fmt.Println("	Vector already exists")
 		return nil
 	}
 
-	return db.AutoMigrate(&Vector{}).Error
+	return context.Database().AutoMigrate(&Vector{}).Error
 }
 
-func CreateVilleray(cfg *config.Config) error {
-	db := cfg.DB()
-
+func CreateVilleray(context *runtime.Context) error {
 	fmt.Println("... Creating villeray district")
 
-	repository := NewDistrictRepository(cfg)
+	repository := NewDistrictRepository(context)
 	villeray, err := repository.FindByName("villeray")
 
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
@@ -83,5 +67,5 @@ func CreateVilleray(cfg *config.Config) error {
 
 	query := "INSERT INTO districts(name, geometry) VALUES ($1, ST_GeomFromText($2, 4326));"
 
-	return db.Exec(query, "villeray", district.Geometry).Error
+	return context.Database().Exec(query, "villeray", district.Geometry).Error
 }

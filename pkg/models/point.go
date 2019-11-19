@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-spatial/geom"
 	"github.com/jinzhu/gorm"
-	"github.com/mlhamel/survilleray/pkg/config"
+	"github.com/mlhamel/survilleray/pkg/runtime"
 )
 
 // Point represent a flight point from Opensky
@@ -70,18 +70,18 @@ func (p *Point) FindOverlaps(district *District) (bool, error) {
 	return extent.ContainsGeom(p.Geography())
 }
 
-func NewPointRepository(cfg *config.Config) PointRepository {
-	return &pointRepository{cfg}
+func NewPointRepository(context *runtime.Context) PointRepository {
+	return &pointRepository{context}
 }
 
 type pointRepository struct {
-	cfg *config.Config
+	context *runtime.Context
 }
 
 func (p *pointRepository) Find() ([]Point, error) {
 	points := []Point{}
 
-	err := p.cfg.DB().Find(&points).Error
+	err := p.context.Database().Find(&points).Error
 
 	if err != nil {
 		return nil, err
@@ -91,5 +91,5 @@ func (p *pointRepository) Find() ([]Point, error) {
 }
 
 func (p *pointRepository) Insert(point *Point) error {
-	return p.cfg.DB().Create(point).Error
+	return p.context.Database().Create(point).Error
 }

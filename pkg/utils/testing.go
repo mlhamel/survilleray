@@ -7,6 +7,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 
 	"github.com/mlhamel/survilleray/pkg/config"
+	"github.com/mlhamel/survilleray/pkg/runtime"
 )
 
 type Suite interface {
@@ -26,5 +27,6 @@ func SetupSuite(s Suite) {
 		panic(err)
 	}
 
-	config.NewConfigWithDB(orm)
+	cfg := config.NewConfig()
+	runtime.NewContext(cfg, orm)
 }
