@@ -1,8 +1,10 @@
 package models
 
 import (
-	"github.com/pkg/errors"
+	"fmt"
+
 	"github.com/mlhamel/survilleray/pkg/runtime"
+	"github.com/pkg/errors"
 )
 
 type migration struct {
@@ -12,6 +14,7 @@ type migration struct {
 
 func (m *migration) migrate(desc string, migrator func(*runtime.Context) error) {
 	if m.err == nil {
+		fmt.Printf("=== Running: %s ===\n", desc)
 		if err := migrator(m.context); err != nil {
 			m.err = errors.Wrapf(err, "Failed migrating: %s", desc)
 		}

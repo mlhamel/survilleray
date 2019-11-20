@@ -21,7 +21,7 @@ up:
   - custom:
       name: Build command line tools
       met?: test -f "bin/survilleray"
-      meet: go build -o bin/survilleray cmd/migrate/main.go
+      meet: go build -o bin/survilleray cmd/survilleray/main.go
   - custom:
       name: Load dependencies
       met?: go mod tidy
