@@ -15,10 +15,10 @@ type Vector struct {
 }
 
 type VectorRepository interface {
-	Find() ([]*Vector, error)
-	FindByPoint(*Point) ([]*Vector, error)
+	Find() ([]Vector, error)
+	FindByPoint(*Point) ([]Vector, error)
 	Insert(*Vector) error
-	AppendPoints(*Vector, []*Point) error
+	AppendPoints(*Vector, []Point) error
 }
 
 func NewVectorRepository(context *runtime.Context) VectorRepository {
@@ -29,8 +29,8 @@ type vectoryRepository struct {
 	context *runtime.Context
 }
 
-func (v *vectoryRepository) Find() ([]*Vector, error) {
-	var vectors []*Vector
+func (v *vectoryRepository) Find() ([]Vector, error) {
+	var vectors []Vector
 
 	err := v.context.Database().Find(&vectors).Error
 
@@ -41,8 +41,8 @@ func (v *vectoryRepository) Find() ([]*Vector, error) {
 	return vectors, nil
 }
 
-func (v *vectoryRepository) FindByPoint(point *Point) ([]*Vector, error) {
-	var vectors []*Vector
+func (v *vectoryRepository) FindByPoint(point *Point) ([]Vector, error) {
+	var vectors []Vector
 
 	err := v.context.Database().Where(map[string]interface{}{
 		"icao24":    point.Icao24,
@@ -62,6 +62,6 @@ func (v *vectoryRepository) Insert(vector *Vector) error {
 	return v.context.Database().Create(vector).Error
 }
 
-func (v *vectoryRepository) AppendPoints(vector *Vector, points []*Point) error {
+func (v *vectoryRepository) AppendPoints(vector *Vector, points []Point) error {
 	return v.context.Database().Model(vector).Association("Points").Append(points).Error
 }
