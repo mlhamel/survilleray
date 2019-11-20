@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/go-spatial/geom"
 	"github.com/jinzhu/gorm"
@@ -29,6 +30,7 @@ type Point struct {
 	Squawk         string
 	Spi            bool
 	PositionSource float64
+	VectorizedAt   time.Time
 }
 
 type PointRepository interface {
