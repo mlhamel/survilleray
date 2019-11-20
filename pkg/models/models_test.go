@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql/driver"
 	"testing"
+	"time"
 
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/mlhamel/survilleray/pkg/config"
@@ -32,14 +33,6 @@ func (s *Suite) SetupSuite() {
 
 	cfg := config.NewConfig()
 	s.context = runtime.NewContext(cfg, orm)
-
-	s.points = NewPointRepository(s.context)
-	s.vectors = NewVectorRepository(s.context)
-	s.districts = NewDistrictRepository(s.context)
-
-	if err != nil {
-		panic(err)
-	}
 }
 
 func (s *Suite) SetupTest() {
@@ -51,9 +44,49 @@ func (s *Suite) SetupTest() {
 
 	s.tx = tx
 
-	Migrate(s.context)
+	err = Migrate(s.context)
+	if err != nil {
+		panic(err)
+	}
 
-	point := Point{
+	points, err := s.insertPoints()
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = s.insertVectors(points)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (s *Suite) insertVectors(points []Point) ([]Vector, error) {
+	repos := NewVectorRepository(s.context)
+
+	vector := Vector{
+		Icao24:   "c07c71",
+		CallSign: "NDL321",
+		Country:  "Canada",
+		Closed:   false,
+	}
+
+	err := repos.Insert(&vector)
+	if err != nil {
+		return []Vector{}, err
+	}
+
+	err = repos.AppendPoints(&vector, []Point{points[1]})
+	if err != nil {
+		return []Vector{}, err
+	}
+
+	return []Vector{vector}, nil
+}
+
+func (s *Suite) insertPoints() ([]Point, error) {
+	repos := NewPointRepository(s.context)
+
+	simplePoint := Point{
 		Icao24:         "c07c71",
 		CallSign:       "NDL321",
 		OriginCountry:  "Canada",
@@ -73,30 +106,39 @@ func (s *Suite) SetupTest() {
 		PositionSource: 0,
 	}
 
-	err = s.points.Insert(&point)
-
+	err := repos.Insert(&simplePoint)
 	if err != nil {
-		panic(err)
+		return []Point{}, err
 	}
 
-	vector := Vector{
-		Icao24:   "c07c71",
-		CallSign: "NDL321",
-		Country:  "Canada",
-		Closed:   false,
+	vectorizedAt, _ := time.Parse(time.RFC3339, "2006-01-02T15:04:05Z")
+	vectorizedPoint := Point{
+		Icao24:         "c07c72",
+		CallSign:       "NDL322",
+		OriginCountry:  "Canada",
+		TimePosition:   1568688174,
+		LastContact:    1568688174,
+		Longitude:      -73.6275776,
+		Latitude:       45.5339564,
+		GeoAltitude:    0,
+		OnGround:       true,
+		Velocity:       9.26,
+		Heading:        227,
+		VerticalRate:   0,
+		Sensors:        "EMPTY",
+		BaroAltitude:   0,
+		Squawk:         "3147",
+		Spi:            false,
+		PositionSource: 0,
+		VectorizedAt:   vectorizedAt,
 	}
 
-	s.vectors.Insert(&vector)
-
+	err = repos.Insert(&vectorizedPoint)
 	if err != nil {
-		panic(err)
+		return []Point{}, err
 	}
 
-	err = s.vectors.AppendPoints(&vector, []*Point{&point})
-
-	if err != nil {
-		panic(err)
-	}
+	return []Point{simplePoint, vectorizedPoint}, nil
 }
 
 func (s *Suite) AfterTest(_, _ string) {
