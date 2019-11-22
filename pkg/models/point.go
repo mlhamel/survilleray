@@ -30,11 +30,12 @@ type Point struct {
 	Squawk         string
 	Spi            bool
 	PositionSource float64
-	VectorizedAt   time.Time
+	VectorizedAt   time.Time `gorm:"default:null"`
 }
 
 type PointRepository interface {
 	Find() ([]Point, error)
+	FindByVectorizedAt(*time.Time) ([]Point, error)
 	Insert(*Point) error
 }
 
@@ -80,10 +81,10 @@ type pointRepository struct {
 	context *runtime.Context
 }
 
-func (p *pointRepository) Find() ([]Point, error) {
+func (repository *pointRepository) Find() ([]Point, error) {
 	points := []Point{}
 
-	err := p.context.Database().Find(&points).Error
+	err := repository.context.Database().Find(&points).Error
 
 	if err != nil {
 		return nil, err
@@ -92,6 +93,26 @@ func (p *pointRepository) Find() ([]Point, error) {
 	return points, nil
 }
 
-func (p *pointRepository) Insert(point *Point) error {
-	return p.context.Database().Create(point).Error
+func (repository *pointRepository) FindByVectorizedAt(vectorizedAt *time.Time) ([]Point, error) {
+	points := []Point{}
+
+	query := repository.context.Database().Debug()
+
+	if vectorizedAt == nil {
+		query = query.Where("vectorized_at IS NULL")
+	} else {
+		query = query.Where("vectorized_at = ?", vectorizedAt)
+	}
+
+	err := query.Find(&points).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return points, nil
+}
+
+func (repository *pointRepository) Insert(point *Point) error {
+	return repository.context.Database().Create(point).Error
 }
