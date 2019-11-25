@@ -18,27 +18,26 @@ func NewAcquisition(context *runtime.Context) *AcquisitionJob {
 }
 
 func (job *AcquisitionJob) Run() error {
-	var r = opensky.NewRequest(openskyURL)
-
-	points, err := r.GetPlanes()
+	request := opensky.NewRequest(openskyURL)
+	points, err := request.GetPlanes()
 
 	if err != nil {
 		return err
 	}
 
 	for i := 0; i < len(points); i++ {
-		v := points[i]
+		point := points[i]
 
-		if !job.context.Database().NewRecord(v) {
+		if !job.context.Database().NewRecord(point) {
 			continue
 		}
 
-		log.Printf("Inserting point with `%s`", v.String())
+		log.Printf("Inserting point with `%s`", point.String())
 
-		err := job.context.Database().Create(&v).Error
+		err := job.context.Database().Create(&point).Error
 
 		if err != nil {
-			log.Printf("Cannot insert point for %s, error is %s", v.Icao24, err)
+			log.Printf("Cannot insert point for %s, error is %s", point.Icao24, err)
 		}
 	}
 
