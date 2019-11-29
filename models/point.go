@@ -35,6 +35,7 @@ type Point struct {
 
 type PointRepository interface {
 	Find() ([]Point, error)
+	FindByIcao24(string) ([]Point, error)
 	FindByVectorizedAt(*time.Time) ([]Point, error)
 	Insert(*Point) error
 }
@@ -85,6 +86,22 @@ func (repository *pointRepository) Find() ([]Point, error) {
 	points := []Point{}
 
 	err := repository.context.Database().Find(&points).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return points, nil
+}
+
+func (repository *pointRepository) FindByIcao24(icao24 string) ([]Point, error) {
+	points := []Point{}
+
+	err := repository.context.
+		Database().
+		Debug().
+		Where("icao24 = ?", icao24).
+		Find(&points).Error
 
 	if err != nil {
 		return nil, err

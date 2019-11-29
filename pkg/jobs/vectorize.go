@@ -3,7 +3,7 @@ package jobs
 import (
 	"fmt"
 
-	"github.com/mlhamel/survilleray/pkg/models"
+	"github.com/mlhamel/survilleray/models"
 	"github.com/mlhamel/survilleray/pkg/runtime"
 )
 
