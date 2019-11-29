@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/mlhamel/survilleray/pkg/models"
+	"github.com/mlhamel/survilleray/models"
 )
 
 // Request is used for requesting new data to OpenSky

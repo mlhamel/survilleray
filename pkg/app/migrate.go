@@ -5,7 +5,7 @@ import (
 
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 
-	"github.com/mlhamel/survilleray/pkg/models"
+	"github.com/mlhamel/survilleray/models"
 	"github.com/mlhamel/survilleray/pkg/runtime"
 )
 

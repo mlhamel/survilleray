@@ -17,6 +17,12 @@ type Geojson struct {
 	String       string
 }
 
+// ErrorInvalidGeometry is raised when encountered an invalid geojson format
+var ErrorInvalidGeometry = errors.New("Invalid geometry")
+
+// ErrorInvalidGeoJSON is raised when encountered something else than a multipolygon
+var ErrorInvalidGeoJSON = errors.New("Geojson is not a multipolygon")
+
 func NewGeojsonFromPath(path string) (*Geojson, error) {
 	var raw map[string]json.RawMessage
 	file, err := os.Open(path)
@@ -39,6 +45,10 @@ func NewGeojsonFromValue(value string) (*Geojson, error) {
 		return nil, err
 	}
 
+	if raw["geometry"] == nil {
+		return nil, ErrorInvalidGeometry
+	}
+
 	return NewGeojson(raw["geometry"])
 }
 
@@ -53,7 +63,7 @@ func NewGeojson(raw json.RawMessage) (*Geojson, error) {
 
 	multipolygon, ok := geometry.Geometry.(geom.MultiPolygon)
 	if !ok {
-		return nil, errors.New("geometry is not a multipolygon")
+		return nil, ErrorInvalidGeoJSON
 	}
 
 	encoder := wkt.NewDefaultEncoder(&buf)
