@@ -30,7 +30,4 @@ jobs:
       run: go build -v -o ./bin/survilleray ./cmd/survilleray/main.go
 
     - name: Test
-      env:
-
-        DATABASE_URL: postgres://postgres:docker@127.0.0.1:${{ job.services.mysql.ports[5432] }}/survilleray_test?sslmode=disable
-      run: go test -cover -race ./...
+      run: DATABASE_URL=postgres://postgres:docker@127.0.0.1:${{ job.services.mysql.ports[5432] }}/survilleray_test?sslmode=disable go test -cover -race ./...
