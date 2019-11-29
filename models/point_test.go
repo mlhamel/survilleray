@@ -5,7 +5,7 @@ import "time"
 func (s *Suite) TestString() {
 	repos := NewPointRepository(s.context)
 
-	points, err := repos.Find()
+	points, err := repos.FindByIcao24("c07c72")
 
 	s.NoError(err, "Cannot transform point to string")
 	s.Equal("(c07c72, NDL322, 1568688174.000000)", points[0].String())
@@ -15,7 +15,7 @@ func (s *Suite) TestFindOverlaps() {
 	pointRepos := NewPointRepository(s.context)
 	districtRepos := NewDistrictRepository(s.context)
 
-	points, err := pointRepos.Find()
+	points, err := pointRepos.FindByIcao24("c07c72")
 	districts, err := districtRepos.Find()
 	first := districts[0]
 	overlaps, err := points[0].FindOverlaps(first)
