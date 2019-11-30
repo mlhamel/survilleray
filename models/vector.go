@@ -14,11 +14,22 @@ type Vector struct {
 	Points   []Point `gorm:"many2many:vector_points"`
 }
 
+func NewVectorFromPoint(point *Point) *Vector {
+	return &Vector{
+		Icao24:   point.Icao24,
+		CallSign: point.CallSign,
+		Country:  point.OriginCountry,
+		Points:   []Point{},
+	}
+}
+
 type VectorRepository interface {
 	Find() ([]Vector, error)
 	FindByPoint(*Point) ([]Vector, error)
+	FindByCallSign(string) (*Vector, error)
 	Insert(*Vector) error
 	AppendPoints(*Vector, []Point) error
+	Update(*Vector, ...interface{}) error
 }
 
 func NewVectorRepository(context *runtime.Context) VectorRepository {
@@ -29,10 +40,10 @@ type vectoryRepository struct {
 	context *runtime.Context
 }
 
-func (v *vectoryRepository) Find() ([]Vector, error) {
+func (repository *vectoryRepository) Find() ([]Vector, error) {
 	var vectors []Vector
 
-	err := v.context.Database().Find(&vectors).Error
+	err := repository.context.Database().Find(&vectors).Error
 
 	if err != nil {
 		return nil, err
@@ -41,15 +52,17 @@ func (v *vectoryRepository) Find() ([]Vector, error) {
 	return vectors, nil
 }
 
-func (v *vectoryRepository) FindByPoint(point *Point) ([]Vector, error) {
+func (repository *vectoryRepository) FindByPoint(point *Point) ([]Vector, error) {
 	var vectors []Vector
 
-	err := v.context.Database().Where(map[string]interface{}{
-		"icao24":    point.Icao24,
-		"call_sign": point.CallSign,
-		"country":   point.OriginCountry,
-		"closed":    false,
-	}).Find(&vectors).Error
+	err := repository.context.
+		Database().
+		Where(map[string]interface{}{
+			"icao24":    point.Icao24,
+			"call_sign": point.CallSign,
+			"country":   point.OriginCountry,
+			"closed":    false}).
+		Find(&vectors).Error
 
 	if err != nil {
 		return nil, err
@@ -58,10 +71,41 @@ func (v *vectoryRepository) FindByPoint(point *Point) ([]Vector, error) {
 	return vectors, nil
 }
 
-func (v *vectoryRepository) Insert(vector *Vector) error {
-	return v.context.Database().Create(vector).Error
+func (repository *vectoryRepository) FindByCallSign(callsign string) (*Vector, error) {
+	var vector Vector
+
+	err := repository.context.
+		Database().
+		Where(map[string]interface{}{
+			"call_sign": callsign,
+			"closed":    false}).
+		Last(&vector).
+		Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &vector, err
 }
 
-func (v *vectoryRepository) AppendPoints(vector *Vector, points []Point) error {
-	return v.context.Database().Model(vector).Association("Points").Append(points).Error
+func (repository *vectoryRepository) Insert(vector *Vector) error {
+	return repository.context.
+		Database().
+		Create(vector).Error
+}
+
+func (repository *vectoryRepository) AppendPoints(vector *Vector, points []Point) error {
+	return repository.context.
+		Database().
+		Model(vector).
+		Association("Points").
+		Append(points).Error
+}
+
+func (repository *vectoryRepository) Update(vector *Vector, attrs ...interface{}) error {
+	return repository.context.
+		Database().
+		Model(vector).
+		Update(attrs...).Error
 }

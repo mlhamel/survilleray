@@ -38,6 +38,7 @@ type PointRepository interface {
 	FindByIcao24(string) ([]Point, error)
 	FindByVectorizedAt(*time.Time) ([]Point, error)
 	Insert(*Point) error
+	Update(*Point, ...interface{}) error
 }
 
 // BeforeSave is adding addional validations
@@ -132,4 +133,11 @@ func (repository *pointRepository) FindByVectorizedAt(vectorizedAt *time.Time) (
 
 func (repository *pointRepository) Insert(point *Point) error {
 	return repository.context.Database().Create(point).Error
+}
+
+func (repository *pointRepository) Update(point *Point, attrs ...interface{}) error {
+	return repository.context.
+		Database().
+		Model(point).
+		Update(attrs...).Error
 }
