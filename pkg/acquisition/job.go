@@ -6,15 +6,15 @@ import (
 	"github.com/mlhamel/survilleray/pkg/runtime"
 )
 
-type AcquisitionJob struct {
+type Job struct {
 	context *runtime.Context
 }
 
-func NewJob(context *runtime.Context) *AcquisitionJob {
-	return &AcquisitionJob{context}
+func NewJob(context *runtime.Context) *Job {
+	return &Job{context}
 }
 
-func (job *AcquisitionJob) Run() error {
+func (job *Job) Run() error {
 	cfg := job.context.Config()
 	operation := NewOperation()
 

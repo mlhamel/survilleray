@@ -1,4 +1,4 @@
-package acquisition
+package vectorization
 
 import (
 	"github.com/mlhamel/survilleray/pkg/runtime"
@@ -9,7 +9,7 @@ type App struct {
 }
 
 func NewApp(context *runtime.Context) *App {
-	return &App{context}
+	return &App{context: context}
 }
 
 func (a *App) Run() error {
