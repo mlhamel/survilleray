@@ -16,7 +16,7 @@ type AcquisitionOperation interface {
 type AcquisitionOperationImpl struct {
 }
 
-func NewAcquisitionOperation() AcquisitionOperation {
+func NewOperation() AcquisitionOperation {
 	return &AcquisitionOperationImpl{}
 }
 
