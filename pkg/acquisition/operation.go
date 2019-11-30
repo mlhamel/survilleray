@@ -11,6 +11,7 @@ import (
 type Operation interface {
 	GetLatestPoint(string) ([]models.Point, error)
 	InsertPoint(*runtime.Context, *models.Point) error
+	CloseVectors(*runtime.Context, *models.Point) error
 }
 
 type OperationImpl struct {
@@ -37,4 +38,26 @@ func (operation *OperationImpl) InsertPoint(context *runtime.Context, point *mod
 
 	return context.Database().Create(&point).Error
 
+}
+
+func (operation *OperationImpl) CloseVectors(context *runtime.Context, point *models.Point) error {
+	if !point.OnGround {
+		return nil
+	}
+
+	repository := models.NewVectorRepository(context)
+
+	vectors, err := repository.FindByPoint(point)
+
+	if err != nil {
+		return err
+	}
+
+	for i := 0; i < len(vectors); i++ {
+		if !vectors[i].Closed {
+			repository.Update(&vectors[i], map[string]interface{}{"Closed": true})
+		}
+	}
+
+	return nil
 }

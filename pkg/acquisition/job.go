@@ -29,6 +29,11 @@ func (job *Job) Run() error {
 
 		if err = operation.InsertPoint(job.context, &point); err != nil {
 			log.Printf("Cannot insert point for %s, error is %s", point.Icao24, err)
+			continue
+		}
+
+		if err = operation.CloseVectors(job.context, &point); err != nil {
+			log.Printf("Cannot close vector corresponding to %s cause %s", point.Icao24, err)
 		}
 	}
 
