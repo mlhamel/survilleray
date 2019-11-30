@@ -69,6 +69,10 @@ func (c *Config) Password() string {
 	return p
 }
 
+func (c *Config) OpenSkyURL() string {
+	return "https://opensky-network.org/api/states/all?lamin=%d&lamax=%d&lomin=%d&lomax=%d"
+}
+
 // Env return the current run level
 func (c *Config) Env() string {
 	env := os.Getenv("ENV")

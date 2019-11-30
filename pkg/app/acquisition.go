@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/mlhamel/survilleray/pkg/jobs"
+	"github.com/mlhamel/survilleray/pkg/acquisition"
 	"github.com/mlhamel/survilleray/pkg/runtime"
 )
 
@@ -14,7 +14,7 @@ func NewAcquisitionApp(context *runtime.Context) *AcquisitionApp {
 }
 
 func (a *AcquisitionApp) Run() error {
-	job := jobs.NewAcquisition(a.context)
+	job := acquisition.NewAcquisition(a.context)
 
 	return job.Run()
 }
