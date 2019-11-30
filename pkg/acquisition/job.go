@@ -10,13 +10,13 @@ type AcquisitionJob struct {
 	context *runtime.Context
 }
 
-func NewAcquisition(context *runtime.Context) *AcquisitionJob {
+func NewJob(context *runtime.Context) *AcquisitionJob {
 	return &AcquisitionJob{context}
 }
 
 func (job *AcquisitionJob) Run() error {
 	cfg := job.context.Config()
-	operation := NewAcquisitionOperation()
+	operation := NewOperation()
 
 	points, err := operation.GetLatestPoint(cfg.OpenSkyURL())
 

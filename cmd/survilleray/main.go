@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/mlhamel/survilleray/pkg/acquisition"
 	"github.com/mlhamel/survilleray/pkg/app"
 	"github.com/mlhamel/survilleray/pkg/config"
 	"github.com/mlhamel/survilleray/pkg/runtime"
@@ -19,7 +20,7 @@ func main() {
 		{
 			Name: "acquire",
 			Action: func(c *cli.Context) error {
-				acquisitionApp := app.NewAcquisitionApp(context)
+				acquisitionApp := acquisition.NewApp(context)
 				return acquisitionApp.Run()
 			},
 		},
