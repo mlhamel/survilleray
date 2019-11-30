@@ -8,6 +8,7 @@ import (
 	"github.com/mlhamel/survilleray/pkg/app"
 	"github.com/mlhamel/survilleray/pkg/config"
 	"github.com/mlhamel/survilleray/pkg/runtime"
+	"github.com/mlhamel/survilleray/pkg/vectorization"
 	"github.com/urfave/cli"
 )
 
@@ -41,7 +42,7 @@ func main() {
 		{
 			Name: "vectorize",
 			Action: func(c *cli.Context) error {
-				vectorizeApp := app.NewVectorizeApp(context)
+				vectorizeApp := vectorization.NewApp(context)
 				return vectorizeApp.Run()
 			},
 		},

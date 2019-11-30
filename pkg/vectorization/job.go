@@ -1,4 +1,4 @@
-package jobs
+package vectorization
 
 import (
 	"fmt"
@@ -7,15 +7,15 @@ import (
 	"github.com/mlhamel/survilleray/pkg/runtime"
 )
 
-type VectorizeJob struct {
+type Job struct {
 	context *runtime.Context
 }
 
-func NewVectorizeJob(context *runtime.Context) *VectorizeJob {
-	return &VectorizeJob{context}
+func NewJob(context *runtime.Context) *Job {
+	return &Job{context}
 }
 
-func (job *VectorizeJob) Run() error {
+func (job *Job) Run() error {
 	repository := models.NewPointRepository(job.context)
 	points, err := repository.Find()
 
