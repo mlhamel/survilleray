@@ -7,7 +7,6 @@ import (
 
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/mlhamel/survilleray/pkg/config"
-	"github.com/mlhamel/survilleray/pkg/runtime"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -17,7 +16,7 @@ type Suite struct {
 	vectors   VectorRepository
 	districts DistrictRepository
 	tx        driver.Tx
-	context   *runtime.Context
+	cfg       *config.Config
 }
 
 func TestVectorRepository(t *testing.T) {
@@ -25,18 +24,17 @@ func TestVectorRepository(t *testing.T) {
 }
 
 func (s *Suite) SetupSuite() {
-	orm, err := config.NewTestDatabase(config.GetEnv("DATABASE_URL", ""))
+	database, err := config.NewTestDatabase(config.GetEnv("DATABASE_URL", ""))
 
 	if err != nil {
 		panic(err)
 	}
 
-	cfg := config.NewConfig()
-	s.context = runtime.NewContext(cfg, orm)
+	s.cfg = config.NewConfigWithDatabase(database)
 }
 
 func (s *Suite) SetupTest() {
-	tx, err := s.context.Database().DB().Begin()
+	tx, err := s.cfg.Database().DB().Begin()
 
 	if err != nil {
 		panic(err)
@@ -44,7 +42,7 @@ func (s *Suite) SetupTest() {
 
 	s.tx = tx
 
-	err = Migrate(s.context)
+	err = Migrate(s.cfg)
 	if err != nil {
 		panic(err)
 	}
@@ -61,7 +59,7 @@ func (s *Suite) SetupTest() {
 }
 
 func (s *Suite) insertVectors(points []Point) ([]Vector, error) {
-	repos := NewVectorRepository(s.context)
+	repos := NewVectorRepository(s.cfg)
 
 	vector := Vector{
 		Icao24:   "c07c71",
@@ -84,7 +82,7 @@ func (s *Suite) insertVectors(points []Point) ([]Vector, error) {
 }
 
 func (s *Suite) insertPoints() ([]Point, error) {
-	repos := NewPointRepository(s.context)
+	repos := NewPointRepository(s.cfg)
 
 	simplePoint := Point{
 		Icao24:         "c07c71",

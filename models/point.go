@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-spatial/geom"
 	"github.com/jinzhu/gorm"
-	"github.com/mlhamel/survilleray/pkg/runtime"
+	"github.com/mlhamel/survilleray/pkg/config"
 )
 
 // Point represent a flight point from Opensky
@@ -75,18 +75,18 @@ func (p *Point) FindOverlaps(district *District) (bool, error) {
 	return extent.ContainsGeom(p.Geography())
 }
 
-func NewPointRepository(context *runtime.Context) PointRepository {
-	return &pointRepository{context}
+func NewPointRepository(cfg *config.Config) PointRepository {
+	return &pointRepository{cfg}
 }
 
 type pointRepository struct {
-	context *runtime.Context
+	cfg *config.Config
 }
 
 func (repository *pointRepository) Find() ([]Point, error) {
 	points := []Point{}
 
-	err := repository.context.Database().Find(&points).Error
+	err := repository.cfg.Database().Find(&points).Error
 
 	if err != nil {
 		return nil, err
@@ -98,7 +98,7 @@ func (repository *pointRepository) Find() ([]Point, error) {
 func (repository *pointRepository) FindByIcao24(icao24 string) ([]Point, error) {
 	points := []Point{}
 
-	err := repository.context.
+	err := repository.cfg.
 		Database().
 		Debug().
 		Where("icao24 = ?", icao24).
@@ -114,7 +114,7 @@ func (repository *pointRepository) FindByIcao24(icao24 string) ([]Point, error) 
 func (repository *pointRepository) FindByVectorizedAt(vectorizedAt *time.Time) ([]Point, error) {
 	points := []Point{}
 
-	query := repository.context.Database().Debug()
+	query := repository.cfg.Database().Debug()
 
 	if vectorizedAt == nil {
 		query = query.Where("vectorized_at IS NULL")
@@ -132,11 +132,11 @@ func (repository *pointRepository) FindByVectorizedAt(vectorizedAt *time.Time) (
 }
 
 func (repository *pointRepository) Insert(point *Point) error {
-	return repository.context.Database().Create(point).Error
+	return repository.cfg.Database().Create(point).Error
 }
 
 func (repository *pointRepository) Update(point *Point, attrs ...interface{}) error {
-	return repository.context.
+	return repository.cfg.
 		Database().
 		Model(point).
 		Update(attrs...).Error

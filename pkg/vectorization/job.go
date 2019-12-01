@@ -5,20 +5,20 @@ import (
 	"time"
 
 	"github.com/mlhamel/survilleray/models"
-	"github.com/mlhamel/survilleray/pkg/runtime"
+	"github.com/mlhamel/survilleray/pkg/config"
 )
 
 type Job struct {
-	context *runtime.Context
+	cfg *config.Config
 }
 
-func NewJob(context *runtime.Context) *Job {
-	return &Job{context}
+func NewJob(cfg *config.Config) *Job {
+	return &Job{cfg}
 }
 
 func (job *Job) Run() error {
-	pointRepos := models.NewPointRepository(job.context)
-	vectorRepos := models.NewVectorRepository(job.context)
+	pointRepos := models.NewPointRepository(job.cfg)
+	vectorRepos := models.NewVectorRepository(job.cfg)
 
 	points, err := pointRepos.FindByVectorizedAt(nil)
 
@@ -29,14 +29,14 @@ func (job *Job) Run() error {
 	operation := NewOperation()
 
 	for i := 0; i < len(points); i++ {
-		tx := job.context.Database().Begin()
+		tx := job.cfg.Database().Begin()
 		if tx.Error != nil {
 			return err
 		}
 
 		point := points[i]
 
-		vector, err := operation.GetOrCreateVectorFromPoint(job.context, &point)
+		vector, err := operation.GetOrCreateVectorFromPoint(job.cfg, &point)
 
 		if err != nil {
 			return fmt.Errorf("Cannot find or create vector: %w", err)

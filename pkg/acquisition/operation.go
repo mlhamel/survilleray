@@ -4,13 +4,13 @@ import (
 	"log"
 
 	"github.com/mlhamel/survilleray/models"
+	"github.com/mlhamel/survilleray/pkg/config"
 	"github.com/mlhamel/survilleray/pkg/opensky"
-	"github.com/mlhamel/survilleray/pkg/runtime"
 )
 
 type Operation interface {
 	GetLatestPoint(string) ([]models.Point, error)
-	InsertPoint(*runtime.Context, *models.Point) error
+	InsertPoint(*config.Config, *models.Point) error
 }
 
 type OperationImpl struct {
@@ -26,8 +26,8 @@ func (operation *OperationImpl) GetLatestPoint(url string) ([]models.Point, erro
 	return r.GetPlanes()
 }
 
-func (operation *OperationImpl) InsertPoint(context *runtime.Context, point *models.Point) error {
-	if !context.Database().NewRecord(point) {
+func (operation *OperationImpl) InsertPoint(cfg *config.Config, point *models.Point) error {
+	if !cfg.Database().NewRecord(point) {
 		log.Printf("Point `%s` already existed", point.String())
 
 		return nil
@@ -35,6 +35,6 @@ func (operation *OperationImpl) InsertPoint(context *runtime.Context, point *mod
 
 	log.Printf("Inserting point with `%s`", point.String())
 
-	return context.Database().Create(&point).Error
+	return cfg.Database().Create(&point).Error
 
 }

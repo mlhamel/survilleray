@@ -1,19 +1,19 @@
 package acquisition
 
 import (
-	"github.com/mlhamel/survilleray/pkg/runtime"
+	"github.com/mlhamel/survilleray/pkg/config"
 )
 
 type App struct {
-	context *runtime.Context
+	cfg *config.Config
 }
 
-func NewApp(context *runtime.Context) *App {
-	return &App{context}
+func NewApp(cfg *config.Config) *App {
+	return &App{cfg}
 }
 
 func (a *App) Run() error {
-	job := NewJob(a.context)
+	job := NewJob(a.cfg)
 
 	return job.Run()
 }

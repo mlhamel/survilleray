@@ -3,8 +3,8 @@ package models
 import (
 	"github.com/go-spatial/geom"
 	"github.com/jinzhu/gorm"
+	"github.com/mlhamel/survilleray/pkg/config"
 	"github.com/mlhamel/survilleray/pkg/geo"
-	"github.com/mlhamel/survilleray/pkg/runtime"
 )
 
 type District struct {
@@ -19,18 +19,18 @@ type DistrictRepository interface {
 	Insert(*District) error
 }
 
-func NewDistrictRepository(context *runtime.Context) DistrictRepository {
-	return &districtRepository{context}
+func NewDistrictRepository(cfg *config.Config) DistrictRepository {
+	return &districtRepository{cfg}
 }
 
 type districtRepository struct {
-	context *runtime.Context
+	cfg *config.Config
 }
 
 func (d *districtRepository) Find() ([]*District, error) {
 	var districts []*District
 
-	err := d.context.Database().
+	err := d.cfg.Database().
 		Table("districts").
 		Select("name, ST_AsText(geometry) as geometry").
 		Find(&districts).Error
@@ -45,7 +45,7 @@ func (d *districtRepository) Find() ([]*District, error) {
 func (d *districtRepository) FindByName(name string) (*District, error) {
 	var district District
 
-	err := d.context.Database().
+	err := d.cfg.Database().
 		Where("name = ?", name).
 		First(&district).Error
 
@@ -59,7 +59,7 @@ func (d *districtRepository) FindByName(name string) (*District, error) {
 func (d *districtRepository) Insert(district *District) error {
 	query := "INSERT INTO districts(name, geometry) VALUES ($1, ST_GeomFromText($2, 4326));"
 
-	return d.context.Database().
+	return d.cfg.Database().
 		Exec(query, "villeray", district.Geometry).
 		Error
 }
