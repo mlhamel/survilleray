@@ -7,35 +7,45 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/graphql-go/graphql"
 	"github.com/mlhamel/survilleray/models"
-	"github.com/mlhamel/survilleray/pkg/runtime"
+	"github.com/mlhamel/survilleray/pkg/config"
 )
 
 type GraphQLController struct {
-	context *runtime.Context
+	cfg *config.Config
 }
 
-var pointType = graphql.NewObject(
-	graphql.ObjectConfig{
+func NewGraphQLController(cfg *config.Config) *GraphQLController {
+	return &GraphQLController{cfg}
+}
+
+func (controller *GraphQLController) Query(c *gin.Context) {
+	s, _ := controller.buildSchema()
+	result := controller.executeQuery(c.Query("query"), s)
+	c.JSON(http.StatusOK, result)
+}
+
+func (controller *GraphQLController) pointType() *graphql.Object {
+	return graphql.NewObject(graphql.ObjectConfig{
 		Name: "Point",
 		Fields: graphql.Fields{
 			"icao24": &graphql.Field{
 				Type: graphql.String,
 			},
 		},
-	},
-)
+	})
+}
 
-func queryType(context *runtime.Context) *graphql.Object {
+func (controller *GraphQLController) queryType() *graphql.Object {
 	return graphql.NewObject(
 		graphql.ObjectConfig{
 			Name: "Query",
 			Fields: graphql.Fields{
 				"points": &graphql.Field{
-					Type:        graphql.NewList(pointType),
+					Type:        graphql.NewList(controller.pointType()),
 					Description: "Get point list",
 					Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 						var points []models.Point
-						context.Database().Find(&points)
+						controller.cfg.Database().Find(&points)
 
 						return points, nil
 					},
@@ -45,7 +55,7 @@ func queryType(context *runtime.Context) *graphql.Object {
 	)
 }
 
-func mutationType(context *runtime.Context) *graphql.Object {
+func (controller *GraphQLController) mutationType() *graphql.Object {
 	return graphql.NewObject(
 		graphql.ObjectConfig{
 			Name:   "Mutation",
@@ -54,17 +64,17 @@ func mutationType(context *runtime.Context) *graphql.Object {
 	)
 }
 
-func buildSchema(context *runtime.Context) (graphql.Schema, error) {
+func (controller *GraphQLController) buildSchema() (graphql.Schema, error) {
 	return graphql.NewSchema(
 		graphql.SchemaConfig{
-			Query:    queryType(context),
-			Mutation: mutationType(context),
+			Query:    controller.queryType(),
+			Mutation: controller.mutationType(),
 		},
 	)
 }
 
-func executeQuery(query string, context *runtime.Context, schema graphql.Schema) *graphql.Result {
-	s, _ := buildSchema(context)
+func (controller *GraphQLController) executeQuery(query string, schema graphql.Schema) *graphql.Result {
+	s, _ := controller.buildSchema()
 	result := graphql.Do(graphql.Params{
 		Schema:        s,
 		RequestString: query,
@@ -73,10 +83,4 @@ func executeQuery(query string, context *runtime.Context, schema graphql.Schema)
 		fmt.Printf("errors: %v", result.Errors)
 	}
 	return result
-}
-
-func (g GraphQLController) Query(c *gin.Context) {
-	s, _ := buildSchema(g.context)
-	result := executeQuery(c.Query("query"), g.context, s)
-	c.JSON(http.StatusOK, result)
 }

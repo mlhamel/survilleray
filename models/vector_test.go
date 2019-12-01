@@ -1,8 +1,8 @@
 package models
 
 func (s *Suite) TestFindByPoint() {
-	pointRepos := NewPointRepository(s.context)
-	vectorRepos := NewVectorRepository(s.context)
+	pointRepos := NewPointRepository(s.cfg)
+	vectorRepos := NewVectorRepository(s.cfg)
 
 	points, err := pointRepos.FindByIcao24("c07c71")
 

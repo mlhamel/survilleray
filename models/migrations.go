@@ -2,27 +2,27 @@ package models
 
 import (
 	"github.com/jinzhu/gorm"
-	"github.com/mlhamel/survilleray/pkg/runtime"
+	"github.com/mlhamel/survilleray/pkg/config"
 )
 
-func CreatePoint(context *runtime.Context) error {
-	return context.Database().Debug().AutoMigrate(&Point{}).Error
+func CreatePoint(cfg *config.Config) error {
+	return cfg.Database().Debug().AutoMigrate(&Point{}).Error
 }
 
-func CreateDistrict(context *runtime.Context) error {
-	return context.Database().Debug().AutoMigrate(&District{}).Error
+func CreateDistrict(cfg *config.Config) error {
+	return cfg.Database().Debug().AutoMigrate(&District{}).Error
 }
 
-func EnablePostgis(context *runtime.Context) error {
-	return context.Database().Debug().Exec("CREATE EXTENSION IF NOT EXISTS postgis").Error
+func EnablePostgis(cfg *config.Config) error {
+	return cfg.Database().Debug().Exec("CREATE EXTENSION IF NOT EXISTS postgis").Error
 }
 
-func CreateVector(context *runtime.Context) error {
-	return context.Database().Debug().AutoMigrate(&Vector{}).Error
+func CreateVector(cfg *config.Config) error {
+	return cfg.Database().Debug().AutoMigrate(&Vector{}).Error
 }
 
-func CreateVilleray(context *runtime.Context) error {
-	repository := NewDistrictRepository(context)
+func CreateVilleray(cfg *config.Config) error {
+	repository := NewDistrictRepository(cfg)
 	villeray, err := repository.FindByName("villeray")
 
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
@@ -41,5 +41,5 @@ func CreateVilleray(context *runtime.Context) error {
 
 	query := "INSERT INTO districts(name, geometry) VALUES ($1, ST_GeomFromText($2, 4326));"
 
-	return context.Database().Debug().Exec(query, "villeray", district.Geometry).Error
+	return cfg.Database().Debug().Exec(query, "villeray", district.Geometry).Error
 }

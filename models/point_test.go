@@ -3,7 +3,7 @@ package models
 import "time"
 
 func (s *Suite) TestString() {
-	repos := NewPointRepository(s.context)
+	repos := NewPointRepository(s.cfg)
 
 	points, err := repos.FindByIcao24("c07c72")
 
@@ -12,8 +12,8 @@ func (s *Suite) TestString() {
 }
 
 func (s *Suite) TestFindOverlaps() {
-	pointRepos := NewPointRepository(s.context)
-	districtRepos := NewDistrictRepository(s.context)
+	pointRepos := NewPointRepository(s.cfg)
+	districtRepos := NewDistrictRepository(s.cfg)
 
 	points, err := pointRepos.FindByIcao24("c07c72")
 	districts, err := districtRepos.Find()
@@ -25,7 +25,7 @@ func (s *Suite) TestFindOverlaps() {
 }
 
 func (s *Suite) TestFindByVectorizedAt() {
-	pointRepos := NewPointRepository(s.context)
+	pointRepos := NewPointRepository(s.cfg)
 
 	points, err := pointRepos.FindByVectorizedAt(nil)
 

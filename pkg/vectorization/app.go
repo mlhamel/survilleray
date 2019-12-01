@@ -1,19 +1,19 @@
 package vectorization
 
 import (
-	"github.com/mlhamel/survilleray/pkg/runtime"
+	"github.com/mlhamel/survilleray/pkg/config"
 )
 
 type App struct {
-	context *runtime.Context
+	cfg *config.Config
 }
 
-func NewApp(context *runtime.Context) *App {
-	return &App{context: context}
+func NewApp(cfg *config.Config) *App {
+	return &App{cfg}
 }
 
-func (a *App) Run() error {
-	job := NewJob(a.context)
+func (app *App) Run() error {
+	job := NewJob(app.cfg)
 
 	return job.Run()
 }

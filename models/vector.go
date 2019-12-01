@@ -2,7 +2,7 @@ package models
 
 import (
 	"github.com/jinzhu/gorm"
-	"github.com/mlhamel/survilleray/pkg/runtime"
+	"github.com/mlhamel/survilleray/pkg/config"
 )
 
 type Vector struct {
@@ -32,18 +32,18 @@ type VectorRepository interface {
 	Update(*Vector, ...interface{}) error
 }
 
-func NewVectorRepository(context *runtime.Context) VectorRepository {
-	return &vectoryRepository{context}
+func NewVectorRepository(cfg *config.Config) VectorRepository {
+	return &vectoryRepository{cfg}
 }
 
 type vectoryRepository struct {
-	context *runtime.Context
+	cfg *config.Config
 }
 
 func (repository *vectoryRepository) Find() ([]Vector, error) {
 	var vectors []Vector
 
-	err := repository.context.Database().Find(&vectors).Error
+	err := repository.cfg.Database().Find(&vectors).Error
 
 	if err != nil {
 		return nil, err
@@ -55,7 +55,7 @@ func (repository *vectoryRepository) Find() ([]Vector, error) {
 func (repository *vectoryRepository) FindByPoint(point *Point) ([]Vector, error) {
 	var vectors []Vector
 
-	err := repository.context.
+	err := repository.cfg.
 		Database().
 		Where(map[string]interface{}{
 			"icao24":    point.Icao24,
@@ -74,7 +74,7 @@ func (repository *vectoryRepository) FindByPoint(point *Point) ([]Vector, error)
 func (repository *vectoryRepository) FindByCallSign(callsign string) (*Vector, error) {
 	var vector Vector
 
-	err := repository.context.
+	err := repository.cfg.
 		Database().
 		Where(map[string]interface{}{
 			"call_sign": callsign,
@@ -90,13 +90,13 @@ func (repository *vectoryRepository) FindByCallSign(callsign string) (*Vector, e
 }
 
 func (repository *vectoryRepository) Insert(vector *Vector) error {
-	return repository.context.
+	return repository.cfg.
 		Database().
 		Create(vector).Error
 }
 
 func (repository *vectoryRepository) AppendPoints(vector *Vector, points []Point) error {
-	return repository.context.
+	return repository.cfg.
 		Database().
 		Model(vector).
 		Association("Points").
@@ -104,7 +104,7 @@ func (repository *vectoryRepository) AppendPoints(vector *Vector, points []Point
 }
 
 func (repository *vectoryRepository) Update(vector *Vector, attrs ...interface{}) error {
-	return repository.context.
+	return repository.cfg.
 		Database().
 		Model(vector).
 		Update(attrs...).Error

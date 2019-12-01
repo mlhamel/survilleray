@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/jinzhu/gorm"
 	"github.com/xo/dburl"
 )
 
@@ -13,6 +14,7 @@ type Config struct {
 	DatabaseURL string
 	parsedURL   *dburl.URL
 	httpPort    string
+	database    *gorm.DB
 }
 
 // NewConfig create a new configuration object
@@ -30,6 +32,12 @@ func NewConfig() *Config {
 		parsedURL:   parsedURL,
 		httpPort:    httpPort,
 	}
+}
+
+func NewConfigWithDatabase(database *gorm.DB) *Config {
+	cfg := NewConfig()
+	cfg.database = database
+	return cfg
 }
 
 // DSN is the connexion key to the database
@@ -71,6 +79,22 @@ func (c *Config) Password() string {
 
 func (c *Config) OpenSkyURL() string {
 	return "https://opensky-network.org/api/states/all?lamin=%d&lamax=%d&lomin=%d&lomax=%d"
+}
+
+func (c *Config) Database() *gorm.DB {
+	if c.database != nil {
+		return c.database
+	}
+
+	database, err := gorm.Open("postgres", c.DSN())
+
+	if err != nil {
+		panic(err)
+	}
+
+	c.database = database
+
+	return c.database
 }
 
 // Env return the current run level
