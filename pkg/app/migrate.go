@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"fmt"
 
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -17,8 +18,8 @@ func NewMigrateApp(cfg *config.Config) *MigrateApp {
 	return &MigrateApp{cfg}
 }
 
-func (app *MigrateApp) Run() error {
+func (app *MigrateApp) Run(ctx context.Context) error {
 	fmt.Printf("Migrating %s\n", app.cfg.DSN())
 
-	return models.Migrate(app.cfg)
+	return models.Migrate(ctx, app.cfg)
 }

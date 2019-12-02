@@ -1,6 +1,7 @@
 package acquisition
 
 import (
+	"context"
 	"log"
 
 	"github.com/mlhamel/survilleray/models"
@@ -9,25 +10,26 @@ import (
 )
 
 type Operation interface {
-	GetLatestPoint(string) ([]models.Point, error)
-	InsertPoint(*config.Config, *models.Point) error
+	GetLatestPoint(context.Context, string) ([]models.Point, error)
+	InsertPoint(context.Context, *models.Point) error
 }
 
 type OperationImpl struct {
+	cfg *config.Config
 }
 
-func NewOperation() Operation {
-	return &OperationImpl{}
+func NewOperation(cfg *config.Config) Operation {
+	return &OperationImpl{cfg}
 }
 
-func (operation *OperationImpl) GetLatestPoint(url string) ([]models.Point, error) {
+func (operation *OperationImpl) GetLatestPoint(ctx context.Context, url string) ([]models.Point, error) {
 	var r = opensky.NewRequest(url)
 
 	return r.GetPlanes()
 }
 
-func (operation *OperationImpl) InsertPoint(cfg *config.Config, point *models.Point) error {
-	if !cfg.Database().NewRecord(point) {
+func (operation *OperationImpl) InsertPoint(ctx context.Context, point *models.Point) error {
+	if !operation.cfg.Database().NewRecord(point) {
 		log.Printf("Point `%s` already existed", point.String())
 
 		return nil
@@ -35,6 +37,6 @@ func (operation *OperationImpl) InsertPoint(cfg *config.Config, point *models.Po
 
 	log.Printf("Inserting point with `%s`", point.String())
 
-	return cfg.Database().Create(&point).Error
+	return operation.cfg.Database().Create(&point).Error
 
 }

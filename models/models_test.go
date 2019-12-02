@@ -1,6 +1,7 @@
 package models
 
 import (
+	"context"
 	"database/sql/driver"
 	"testing"
 	"time"
@@ -17,6 +18,7 @@ type Suite struct {
 	districts DistrictRepository
 	tx        driver.Tx
 	cfg       *config.Config
+	ctx       context.Context
 }
 
 func TestVectorRepository(t *testing.T) {
@@ -41,8 +43,9 @@ func (s *Suite) SetupTest() {
 	}
 
 	s.tx = tx
+	s.ctx = context.Background()
 
-	err = Migrate(s.cfg)
+	err = Migrate(s.ctx, s.cfg)
 	if err != nil {
 		panic(err)
 	}

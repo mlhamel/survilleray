@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -14,34 +15,35 @@ import (
 func main() {
 	cliApp := cli.NewApp()
 	cfg := config.NewConfig()
+	ctx := context.Background()
 
 	cliApp.Commands = []cli.Command{
 		{
 			Name: "acquire",
-			Action: func(context *cli.Context) error {
+			Action: func(*cli.Context) error {
 				acquisitionApp := acquisition.NewApp(cfg)
-				return acquisitionApp.Run()
+				return acquisitionApp.Run(ctx)
 			},
 		},
 		{
 			Name: "migrate",
-			Action: func(context *cli.Context) error {
+			Action: func(*cli.Context) error {
 				migrateApp := app.NewMigrateApp(cfg)
-				return migrateApp.Run()
+				return migrateApp.Run(ctx)
 			},
 		},
 		{
 			Name: "server",
-			Action: func(context *cli.Context) error {
+			Action: func(*cli.Context) error {
 				serverApp := app.NewServerApp(cfg)
-				return serverApp.Run()
+				return serverApp.Run(ctx)
 			},
 		},
 		{
 			Name: "vectorize",
-			Action: func(context *cli.Context) error {
+			Action: func(*cli.Context) error {
 				vectorizeApp := vectorization.NewApp(cfg)
-				return vectorizeApp.Run()
+				return vectorizeApp.Run(ctx)
 			},
 		},
 	}

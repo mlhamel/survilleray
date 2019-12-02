@@ -1,6 +1,7 @@
 package models
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/mlhamel/survilleray/pkg/config"
@@ -12,23 +13,23 @@ type migration struct {
 	err error
 }
 
-func (m *migration) migrate(desc string, migrator func(*config.Config) error) {
+func (m *migration) migrate(ctx context.Context, description string, migrator func(context.Context, *config.Config) error) {
 	if m.err == nil {
-		fmt.Printf("=== Running: %s ===\n", desc)
-		if err := migrator(m.cfg); err != nil {
-			m.err = errors.Wrapf(err, "Failed migrating: %s", desc)
+		fmt.Printf("=== Running: %s ===\n", description)
+		if err := migrator(ctx, m.cfg); err != nil {
+			m.err = errors.Wrapf(err, "Failed migrating: %s", description)
 		}
 	}
 }
 
-func Migrate(cfg *config.Config) error {
+func Migrate(ctx context.Context, cfg *config.Config) error {
 	migrator := migration{cfg: cfg}
 
-	migrator.migrate("creating point", CreatePoint)
-	migrator.migrate("enabling postgis", EnablePostgis)
-	migrator.migrate("creating district", CreateDistrict)
-	migrator.migrate("creating vector", CreateVector)
-	migrator.migrate("creating villeray", CreateVilleray)
+	migrator.migrate(ctx, "creating point", CreatePoint)
+	migrator.migrate(ctx, "enabling postgis", EnablePostgis)
+	migrator.migrate(ctx, "creating district", CreateDistrict)
+	migrator.migrate(ctx, "creating vector", CreateVector)
+	migrator.migrate(ctx, "creating villeray", CreateVilleray)
 
 	return migrator.err
 }

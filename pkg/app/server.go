@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
@@ -20,7 +21,7 @@ func NewServerApp(cfg *config.Config) *ServerApp {
 	}
 }
 
-func (s *ServerApp) Run() error {
+func (s *ServerApp) Run(ctx context.Context) error {
 	return s.router.Run(s.connexionString())
 }
 
