@@ -1,6 +1,7 @@
 package vectorization
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -10,18 +11,19 @@ import (
 )
 
 type Operation interface {
-	GetOrCreateVectorFromPoint(*config.Config, *models.Point) (*models.Vector, error)
+	GetOrCreateVectorFromPoint(context.Context, *models.Point) (*models.Vector, error)
 }
 
 type OperationImpl struct {
+	cfg *config.Config
 }
 
-func NewOperation() Operation {
-	return &OperationImpl{}
+func NewOperation(cfg *config.Config) Operation {
+	return &OperationImpl{cfg}
 }
 
-func (operation *OperationImpl) GetOrCreateVectorFromPoint(cfg *config.Config, point *models.Point) (*models.Vector, error) {
-	repository := models.NewVectorRepository(cfg)
+func (operation *OperationImpl) GetOrCreateVectorFromPoint(ctx context.Context, point *models.Point) (*models.Vector, error) {
+	repository := models.NewVectorRepository(operation.cfg)
 
 	vector, err := repository.FindByCallSign(point.CallSign)
 
@@ -29,7 +31,7 @@ func (operation *OperationImpl) GetOrCreateVectorFromPoint(cfg *config.Config, p
 		log.Printf("Creating vector for point %s", point.String())
 		vector = models.NewVectorFromPoint(point)
 
-		if err = cfg.Database().Create(&vector).Error; err != nil {
+		if err = operation.cfg.Database().Create(&vector).Error; err != nil {
 			return nil, fmt.Errorf("Cannot create vector: %w", err)
 		}
 	} else if err != nil {

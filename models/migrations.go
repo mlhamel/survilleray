@@ -1,27 +1,29 @@
 package models
 
 import (
+	"context"
+
 	"github.com/jinzhu/gorm"
 	"github.com/mlhamel/survilleray/pkg/config"
 )
 
-func CreatePoint(cfg *config.Config) error {
+func CreatePoint(ctx context.Context, cfg *config.Config) error {
 	return cfg.Database().Debug().AutoMigrate(&Point{}).Error
 }
 
-func CreateDistrict(cfg *config.Config) error {
+func CreateDistrict(ctx context.Context, cfg *config.Config) error {
 	return cfg.Database().Debug().AutoMigrate(&District{}).Error
 }
 
-func EnablePostgis(cfg *config.Config) error {
+func EnablePostgis(ctx context.Context, cfg *config.Config) error {
 	return cfg.Database().Debug().Exec("CREATE EXTENSION IF NOT EXISTS postgis").Error
 }
 
-func CreateVector(cfg *config.Config) error {
+func CreateVector(ctx context.Context, cfg *config.Config) error {
 	return cfg.Database().Debug().AutoMigrate(&Vector{}).Error
 }
 
-func CreateVilleray(cfg *config.Config) error {
+func CreateVilleray(ctx context.Context, cfg *config.Config) error {
 	repository := NewDistrictRepository(cfg)
 	villeray, err := repository.FindByName("villeray")
 

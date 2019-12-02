@@ -1,6 +1,7 @@
 package vectorization
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -16,7 +17,7 @@ func NewJob(cfg *config.Config) *Job {
 	return &Job{cfg}
 }
 
-func (job *Job) Run() error {
+func (job *Job) Run(ctx context.Context) error {
 	pointRepos := models.NewPointRepository(job.cfg)
 	vectorRepos := models.NewVectorRepository(job.cfg)
 
@@ -26,7 +27,7 @@ func (job *Job) Run() error {
 		return fmt.Errorf("Cannot find points to vectorize: %w", err)
 	}
 
-	operation := NewOperation()
+	operation := NewOperation(job.cfg)
 
 	for i := 0; i < len(points); i++ {
 		tx := job.cfg.Database().Begin()
@@ -36,7 +37,7 @@ func (job *Job) Run() error {
 
 		point := points[i]
 
-		vector, err := operation.GetOrCreateVectorFromPoint(job.cfg, &point)
+		vector, err := operation.GetOrCreateVectorFromPoint(ctx, &point)
 
 		if err != nil {
 			return fmt.Errorf("Cannot find or create vector: %w", err)
