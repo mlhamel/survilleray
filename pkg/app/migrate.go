@@ -21,5 +21,11 @@ func NewMigrateApp(cfg *config.Config) *MigrateApp {
 func (app *MigrateApp) Run(ctx context.Context) error {
 	fmt.Printf("Migrating %s\n", app.cfg.DSN())
 
-	return models.Migrate(ctx, app.cfg)
+	migrator := models.NewMigrator(app.cfg)
+
+	if err := migrator.Execute(ctx); err != nil {
+		return fmt.Errorf("Cannot migrate database: %w", err)
+	}
+
+	return nil
 }

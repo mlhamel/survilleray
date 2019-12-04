@@ -5,31 +5,40 @@ import (
 	"fmt"
 
 	"github.com/mlhamel/survilleray/pkg/config"
-	"github.com/pkg/errors"
 )
 
-type migration struct {
+type Migration = struct {
+	description string
+	migration   func(context.Context, *config.Config) error
+}
+
+type Migrator struct {
 	cfg *config.Config
 	err error
 }
 
-func (m *migration) migrate(ctx context.Context, description string, migrator func(context.Context, *config.Config) error) {
-	if m.err == nil {
-		fmt.Printf("=== Running: %s ===\n", description)
-		if err := migrator(ctx, m.cfg); err != nil {
-			m.err = errors.Wrapf(err, "Failed migrating: %s", description)
-		}
-	}
+var migrations = []Migration{
+	Migration{"creating point", CreatePoint},
+	Migration{"enabling postgis", EnablePostgis},
+	Migration{"creating district", CreateDistrict},
+	Migration{"creating vector", CreateVector},
+	Migration{"creating villeray", CreateVilleray},
 }
 
-func Migrate(ctx context.Context, cfg *config.Config) error {
-	migrator := migration{cfg: cfg}
+func NewMigrator(cfg *config.Config) *Migrator {
+	return &Migrator{cfg: cfg}
+}
 
-	migrator.migrate(ctx, "creating point", CreatePoint)
-	migrator.migrate(ctx, "enabling postgis", EnablePostgis)
-	migrator.migrate(ctx, "creating district", CreateDistrict)
-	migrator.migrate(ctx, "creating vector", CreateVector)
-	migrator.migrate(ctx, "creating villeray", CreateVilleray)
+func (migrator *Migrator) Migrations() []Migration {
+	return migrations
+}
 
-	return migrator.err
+func (migrator *Migrator) Execute(ctx context.Context) error {
+	for i := range migrator.Migrations() {
+		fmt.Printf("=== Running: %s ===\n", migrations[i].description)
+		if err := migrations[i].migration(ctx, migrator.cfg); err != nil {
+			return fmt.Errorf("Failed migrating %s: %w", migrations[i].description, err)
+		}
+	}
+	return nil
 }
