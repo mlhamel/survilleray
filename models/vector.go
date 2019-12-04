@@ -1,9 +1,13 @@
 package models
 
 import (
+	"errors"
+
 	"github.com/jinzhu/gorm"
 	"github.com/mlhamel/survilleray/pkg/config"
 )
+
+var ErrorVectorAlreadyExisted = errors.New("Point already existed")
 
 type Vector struct {
 	gorm.Model
@@ -27,6 +31,7 @@ type VectorRepository interface {
 	Find() ([]Vector, error)
 	FindByPoint(*Point) ([]Vector, error)
 	FindByCallSign(string) (*Vector, error)
+	Create(*Vector) error
 	Insert(*Vector) error
 	AppendPoints(*Vector, []Point) error
 	Update(*Vector, ...interface{}) error
@@ -87,6 +92,13 @@ func (repository *vectoryRepository) FindByCallSign(callsign string) (*Vector, e
 	}
 
 	return &vector, err
+}
+
+func (repository *vectoryRepository) Create(vector *Vector) error {
+	if !repository.cfg.Database().NewRecord(vector) {
+		return ErrorVectorAlreadyExisted
+	}
+	return repository.cfg.Database().Create(&vector).Error
 }
 
 func (repository *vectoryRepository) Insert(vector *Vector) error {

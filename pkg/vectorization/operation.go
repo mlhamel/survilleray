@@ -7,7 +7,6 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/mlhamel/survilleray/models"
-	"github.com/mlhamel/survilleray/pkg/config"
 )
 
 type Operation interface {
@@ -15,26 +14,27 @@ type Operation interface {
 }
 
 type OperationImpl struct {
-	cfg *config.Config
+	pointRepository  models.PointRepository
+	vectorRepository models.VectorRepository
 }
 
-func NewOperation(cfg *config.Config) Operation {
-	return &OperationImpl{cfg}
+func NewOperation(pointRepository models.PointRepository, vectorRepository models.VectorRepository) Operation {
+	return &OperationImpl{pointRepository, vectorRepository}
 }
 
 func (operation *OperationImpl) GetOrCreateVectorFromPoint(ctx context.Context, point *models.Point) (*models.Vector, error) {
-	repository := models.NewVectorRepository(operation.cfg)
-
-	vector, err := repository.FindByCallSign(point.CallSign)
+	vector, err := operation.vectorRepository.FindByCallSign(point.CallSign)
 
 	if gorm.IsRecordNotFoundError(err) {
 		log.Printf("Creating vector for point %s", point.String())
 		vector = models.NewVectorFromPoint(point)
 
-		if err = operation.cfg.Database().Create(&vector).Error; err != nil {
+		if err = operation.vectorRepository.Create(vector); err != nil {
 			return nil, fmt.Errorf("Cannot create vector: %w", err)
 		}
-	} else if err != nil {
+	}
+
+	if err != nil {
 		return nil, fmt.Errorf("Cannot find vector: %w", err)
 	}
 
