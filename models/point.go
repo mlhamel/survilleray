@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -9,6 +10,8 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/mlhamel/survilleray/pkg/config"
 )
+
+var ErrorPointalreadyExisted = errors.New("Point already existed")
 
 // Point represent a flight point from Opensky
 type Point struct {
@@ -37,6 +40,7 @@ type PointRepository interface {
 	Find() ([]Point, error)
 	FindByIcao24(string) ([]Point, error)
 	FindByVectorizedAt(*time.Time) ([]Point, error)
+	Create(*Point) error
 	Insert(*Point) error
 	Update(*Point, ...interface{}) error
 }
@@ -129,6 +133,13 @@ func (repository *pointRepository) FindByVectorizedAt(vectorizedAt *time.Time) (
 	}
 
 	return points, nil
+}
+
+func (repository *pointRepository) Create(point *Point) error {
+	if !repository.cfg.Database().NewRecord(point) {
+		return ErrorPointalreadyExisted
+	}
+	return repository.cfg.Database().Create(&point).Error
 }
 
 func (repository *pointRepository) Insert(point *Point) error {

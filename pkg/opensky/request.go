@@ -1,6 +1,7 @@
 package opensky
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -21,12 +22,12 @@ type parsedRequest struct {
 }
 
 // NewRequest is creating a new OpenSky request
-func NewRequest(url string) Request {
-	return Request{url: url}
+func NewRequest(url string) *Request {
+	return &Request{url: url}
 }
 
 // GetPlanes a request to OpenSky
-func (r *Request) GetPlanes() (points []models.Point, e error) {
+func (r *Request) GetPlanes(ctx context.Context) (points []models.Point, e error) {
 	parsedURL := fmt.Sprintf(r.url, 44, 47, -74, -72)
 
 	log.Printf("Getting data from %s", parsedURL)

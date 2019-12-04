@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	"github.com/mlhamel/survilleray/models"
 	"github.com/mlhamel/survilleray/pkg/config"
 )
 
@@ -15,8 +16,8 @@ func NewJob(cfg *config.Config) *Job {
 	return &Job{cfg}
 }
 
-func (job *Job) Run(ctx context.Context) error {
-	operation := NewOperation(job.cfg)
+func (job *Job) Run(ctx context.Context, repository models.PointRepository) error {
+	operation := NewOperation(repository)
 
 	points, err := operation.GetLatestPoint(ctx, job.cfg.OpenSkyURL())
 
