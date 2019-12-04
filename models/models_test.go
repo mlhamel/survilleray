@@ -45,7 +45,9 @@ func (s *Suite) SetupTest() {
 	s.tx = tx
 	s.ctx = context.Background()
 
-	err = Migrate(s.ctx, s.cfg)
+	migrator := NewMigrator(s.cfg)
+	err = migrator.Execute(s.ctx)
+
 	if err != nil {
 		panic(err)
 	}
