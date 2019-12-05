@@ -33,7 +33,7 @@ type VectorRepository interface {
 	FindByCallSign(string) (*Vector, error)
 	Create(*Vector) error
 	Insert(*Vector) error
-	AppendPoints(*Vector, []Point) error
+	AppendPoints(*Vector, []*Point) error
 	Update(*Vector, ...interface{}) error
 }
 
@@ -107,7 +107,7 @@ func (repository *vectoryRepository) Insert(vector *Vector) error {
 		Create(vector).Error
 }
 
-func (repository *vectoryRepository) AppendPoints(vector *Vector, points []Point) error {
+func (repository *vectoryRepository) AppendPoints(vector *Vector, points []*Point) error {
 	return repository.cfg.
 		Database().
 		Model(vector).
