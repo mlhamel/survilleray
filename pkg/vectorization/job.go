@@ -3,7 +3,6 @@ package vectorization
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/mlhamel/survilleray/models"
 	"github.com/mlhamel/survilleray/pkg/config"
@@ -36,24 +35,18 @@ func (job *Job) Run(ctx context.Context) error {
 
 		point := points[i]
 
-		vector, err := operation.GetOrCreateVectorFromPoint(ctx, &point)
+		vector, err := operation.RetrieveVectorFromPoint(ctx, &point)
 
 		if err != nil {
 			return fmt.Errorf("Cannot find or create vector: %w", err)
 		}
 
-		if err = job.vectorRepos.AppendPoints(vector, []models.Point{point}); err != nil {
-			return fmt.Errorf("Cannot add point to the matching vector: %w", err)
-		}
-
-		if err = job.pointRepos.Update(&point, map[string]interface{}{"VectorizedAt": time.Now()}); err != nil {
+		if err = operation.MarkPointAsVectorized(ctx, &point); err != nil {
 			return fmt.Errorf("Cannot update VectorizedAt for a point: %w", err)
 		}
 
-		if point.OnGround {
-			if err = job.vectorRepos.Update(vector, map[string]interface{}{"Closed": true}); err != nil {
-				return fmt.Errorf("Cannot update Closed for a vector: %w", err)
-			}
+		if err = operation.AddPointToVector(ctx, &point, vector); err != nil {
+			return fmt.Errorf("Cannot add point to vector: %w", err)
 		}
 
 		if err = tx.Commit().Error; err != nil {

@@ -63,7 +63,7 @@ func (s *Suite) SetupTest() {
 	}
 }
 
-func (s *Suite) insertVectors(points []Point) ([]Vector, error) {
+func (s *Suite) insertVectors(points []*Point) ([]Vector, error) {
 	repos := NewVectorRepository(s.cfg)
 
 	vector := Vector{
@@ -78,7 +78,7 @@ func (s *Suite) insertVectors(points []Point) ([]Vector, error) {
 		return []Vector{}, err
 	}
 
-	err = repos.AppendPoints(&vector, []Point{points[1]})
+	err = repos.AppendPoints(&vector, []*Point{points[1]})
 	if err != nil {
 		return []Vector{}, err
 	}
@@ -86,7 +86,7 @@ func (s *Suite) insertVectors(points []Point) ([]Vector, error) {
 	return []Vector{vector}, nil
 }
 
-func (s *Suite) insertPoints() ([]Point, error) {
+func (s *Suite) insertPoints() ([]*Point, error) {
 	repos := NewPointRepository(s.cfg)
 
 	simplePoint := Point{
@@ -111,7 +111,7 @@ func (s *Suite) insertPoints() ([]Point, error) {
 
 	err := repos.Insert(&simplePoint)
 	if err != nil {
-		return []Point{}, err
+		return []*Point{}, err
 	}
 
 	vectorizedAt, _ := time.Parse(time.RFC3339, "2006-01-02T15:04:05Z")
@@ -138,10 +138,10 @@ func (s *Suite) insertPoints() ([]Point, error) {
 
 	err = repos.Insert(&vectorizedPoint)
 	if err != nil {
-		return []Point{}, err
+		return []*Point{}, err
 	}
 
-	return []Point{simplePoint, vectorizedPoint}, nil
+	return []*Point{&simplePoint, &vectorizedPoint}, nil
 }
 
 func (s *Suite) AfterTest(_, _ string) {
