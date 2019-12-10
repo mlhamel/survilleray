@@ -256,6 +256,8 @@ github.com/pelletier/go-toml v1.4.0/go.mod h1:PN7xzY2wHTK0K9p34ErDQMlFxa51Fk0OUr
 github.com/pierrec/lz4 v2.0.5+incompatible/go.mod h1:pdkljMzZIN41W+lC3N2tnIh5sFi+IEE17M5jbnwPHcY=
 github.com/pior/runnable v0.0.0-20190908231215-12a79bd316d5 h1:MKxd0uDYUJWM+zJzjony7kyzuQ1NgesaJRNbWZddCy0=
 github.com/pior/runnable v0.0.0-20190908231215-12a79bd316d5/go.mod h1:/c47+FJEAPCFzCUFtq9bZBLdL4sV7TwXDmoZgjdBM3k=
+github.com/pior/runnable v0.0.2 h1:5pkLyycgKlO+3C2IMPB0/r514K08CQOZ6PFxHBYle8M=
+github.com/pior/runnable v0.0.2/go.mod h1:cm8qaY3W7sCeBz82dL+jL0/Zs7lITo40hZ+7V9HcwxY=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
