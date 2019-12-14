@@ -9,14 +9,16 @@ import (
 
 type District struct {
 	gorm.Model
-	Name     string `gorm:"size:20;unique_index"`
-	Geometry string `gorm:"type:geometry(MULTIPOLYGON, 4326)"`
+	Name     string  `gorm:"size:20;unique_index"`
+	Geometry string  `gorm:"type:geometry(MULTIPOLYGON, 4326)"`
+	Points   []Point `gorm:"many2many:district_points"`
 }
 
 type DistrictRepository interface {
 	Find() ([]*District, error)
 	FindByName(name string) (*District, error)
 	Insert(*District) error
+	AppendPoints(*District, []*Point) error
 }
 
 func NewDistrictRepository(cfg *config.Config) DistrictRepository {
@@ -62,6 +64,14 @@ func (d *districtRepository) Insert(district *District) error {
 	return d.cfg.Database().
 		Exec(query, "villeray", district.Geometry).
 		Error
+}
+
+func (d *districtRepository) AppendPoints(district *District, points []*Point) error {
+	return d.cfg.
+		Database().
+		Model(district).
+		Association("Points").
+		Append(points).Error
 }
 
 func NewDistrictFromJson(name string, value string) (*District, error) {
