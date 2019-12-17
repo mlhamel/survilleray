@@ -8,18 +8,26 @@ import (
 	"github.com/mlhamel/survilleray/pkg/config"
 )
 
-type Job struct {
-	cfg *config.Config
+type job struct {
+	cfg           *config.Config
+	pointRepos    models.PointRepository
+	districtRepos models.DistrictRepository
 }
 
-func NewJob(cfg *config.Config) *Job {
-	return &Job{cfg}
+func NewJob(cfg *config.Config, pointRepos models.PointRepository, districtRepos models.DistrictRepository) *job {
+	return &job{cfg, pointRepos, districtRepos}
 }
 
-func (job *Job) Run(ctx context.Context, repository models.PointRepository) error {
-	operation := NewOperation(repository)
+func (j *job) Run(ctx context.Context) error {
+	operation := NewOperation(j.pointRepos, j.districtRepos)
 
-	points, err := operation.GetLatestPoint(ctx, job.cfg.OpenSkyURL())
+	villeray, err := j.districtRepos.FindByName("villeray")
+
+	if err != nil {
+		return err
+	}
+
+	points, err := operation.GetLatestPoint(ctx, j.cfg.OpenSkyURL())
 
 	if err != nil {
 		return err
@@ -28,8 +36,25 @@ func (job *Job) Run(ctx context.Context, repository models.PointRepository) erro
 	for i := 0; i < len(points); i++ {
 		point := points[i]
 
+		log.Println("")
+
+		log.Printf("Trying to insert point for %s", point.Icao24)
+
 		if err = operation.InsertPoint(ctx, &point); err != nil {
 			log.Printf("Cannot insert point for %s, error is %s", point.Icao24, err)
+			continue
+		}
+
+		log.Printf("Figuring out if %s overlaps with %s", point.Icao24, villeray.Name)
+
+		err = operation.UpdateOverlaps(ctx, villeray, &point)
+
+		if err == ErrPointNotOverlaps {
+			err = nil
+		}
+
+		if err != nil {
+			return err
 		}
 	}
 

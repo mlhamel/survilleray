@@ -11,14 +11,14 @@ func (s *Suite) TestString() {
 	s.Equal("(c07c72, NDL322, 1568688174.000000)", points[0].String())
 }
 
-func (s *Suite) TestFindOverlaps() {
+func (s *Suite) TestCheckOverlaps() {
 	pointRepos := NewPointRepository(s.cfg)
 	districtRepos := NewDistrictRepository(s.cfg)
 
 	points, err := pointRepos.FindByIcao24("c07c72")
 	districts, err := districtRepos.Find()
 	first := districts[0]
-	overlaps, err := points[0].FindOverlaps(first)
+	overlaps, err := points[0].CheckOverlaps(first)
 
 	s.NoError(err, "Cannot find overlaps")
 	s.True(overlaps, "Overlaps is %t", overlaps)

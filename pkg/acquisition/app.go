@@ -7,19 +7,21 @@ import (
 	"github.com/mlhamel/survilleray/pkg/config"
 )
 
-type App struct {
-	cfg        *config.Config
-	repository models.PointRepository
+type app struct {
+	cfg           *config.Config
+	pointRepos    models.PointRepository
+	districtRepos models.DistrictRepository
 }
 
-func NewApp(cfg *config.Config) *App {
-	repository := models.NewPointRepository(cfg)
+func NewApp(cfg *config.Config) *app {
+	pointRepos := models.NewPointRepository(cfg)
+	districtRepos := models.NewDistrictRepository(cfg)
 
-	return &App{cfg: cfg, repository: repository}
+	return &app{cfg, pointRepos, districtRepos}
 }
 
-func (app *App) Run(ctx context.Context) error {
-	job := NewJob(app.cfg)
+func (a *app) Run(ctx context.Context) error {
+	job := NewJob(a.cfg, a.pointRepos, a.districtRepos)
 
-	return job.Run(ctx, app.repository)
+	return job.Run(ctx)
 }
