@@ -18,7 +18,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.11.0 // indirect
 	github.com/pior/runnable v0.0.2
 	github.com/stretchr/testify v1.4.0
-	github.com/ugorji/go/codec v1.1.7 // indirect
+	github.com/ugorji/go v1.1.7 // indirect
 	github.com/urfave/cli v1.22.1
 	github.com/xo/dburl v0.0.0-20190814034758-0192e0fb89d1
 	golang.org/x/crypto v0.0.0-20191111213947-16651526fdb4 // indirect

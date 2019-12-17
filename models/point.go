@@ -65,7 +65,7 @@ func (p *Point) Geography() *geom.Point {
 	return &geom.Point{p.Longitude, p.Latitude}
 }
 
-func (p *Point) FindOverlaps(district *District) (bool, error) {
+func (p *Point) CheckOverlaps(district *District) (bool, error) {
 	geojson, err := district.GeoJson()
 	if err != nil {
 		return false, err

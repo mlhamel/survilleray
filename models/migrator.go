@@ -18,8 +18,8 @@ type Migrator struct {
 }
 
 var migrations = []Migration{
-	Migration{"creating point", CreatePoint},
 	Migration{"enabling postgis", EnablePostgis},
+	Migration{"creating point", CreatePoint},
 	Migration{"creating district", CreateDistrict},
 	Migration{"creating vector", CreateVector},
 	Migration{"creating villeray", CreateVilleray},
@@ -35,7 +35,7 @@ func (migrator *Migrator) Migrations() []Migration {
 
 func (migrator *Migrator) Execute(ctx context.Context) error {
 	for i := range migrator.Migrations() {
-		fmt.Printf("=== Running: %s ===\n", migrations[i].description)
+		fmt.Printf("=== Running: %s ===", migrations[i].description)
 		if err := migrations[i].migration(ctx, migrator.cfg); err != nil {
 			return fmt.Errorf("Failed migrating %s: %w", migrations[i].description, err)
 		}
