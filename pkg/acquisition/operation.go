@@ -3,10 +3,10 @@ package acquisition
 import (
 	"context"
 	"errors"
-	"log"
 
 	"github.com/mlhamel/survilleray/models"
 	"github.com/mlhamel/survilleray/pkg/opensky"
+	"github.com/rs/zerolog/log"
 )
 
 var ErrPointNotOverlaps = errors.New("point does not overlaps with district")
@@ -34,14 +34,16 @@ func (o *operationImpl) InsertPoint(ctx context.Context, point *models.Point) er
 	err := o.pointRepos.Create(point)
 
 	if err == nil {
-		log.Printf("Inserting point with `%s`", point.String())
+		log.Info().Str("point", point.Icao24).Msg("Inserting point")
 		return nil
 	}
 
 	if err.Error() == models.ErrorPointalreadyExisted.Error() {
-		log.Printf("Point `%s` already existed", point.String())
+		log.Info().Str("point", point.Icao24).Msg("Point already existed")
 		return nil
 	}
+
+	log.Error().Err(err).Str("point", point.Icao24).Msg("Cannot insert point")
 
 	return err
 }
@@ -54,11 +56,11 @@ func (o *operationImpl) UpdateOverlaps(ctx context.Context, district *models.Dis
 	}
 
 	if !overlaps {
-		log.Printf("Point `%s` does not overlaps with `%s`", point.Icao24, district.Name)
+		log.Info().Str("point", point.Icao24).Str("district", district.Name).Msg("Point does not overlaps with district")
 		return ErrPointNotOverlaps
 	}
 
-	log.Printf("Point `%s` overlaps with `%s`", point.Icao24, district.Name)
+	log.Info().Str("point", point.Icao24).Str("district", district.Name).Msg("Point overlaps with district")
 
 	return o.districtRepos.AppendPoint(district, point)
 }

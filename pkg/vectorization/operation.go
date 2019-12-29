@@ -3,11 +3,11 @@ package vectorization
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/jinzhu/gorm"
 	"github.com/mlhamel/survilleray/models"
+	"github.com/rs/zerolog/log"
 )
 
 type Operation interface {
@@ -29,7 +29,7 @@ func (operation *OperationImpl) RetrieveVectorFromPoint(ctx context.Context, poi
 	vector, err := operation.vectorRepository.FindByCallSign(point.CallSign)
 
 	if gorm.IsRecordNotFoundError(err) {
-		log.Printf("Creating vector for point %s", point.String())
+		log.Info().Str("point", point.String()).Msg("Creating vector for point")
 		vector = models.NewVectorFromPoint(point)
 
 		if err = operation.vectorRepository.Create(vector); err != nil {
