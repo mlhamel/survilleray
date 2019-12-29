@@ -2,10 +2,10 @@ package acquisition
 
 import (
 	"context"
-	"log"
 
 	"github.com/mlhamel/survilleray/models"
 	"github.com/mlhamel/survilleray/pkg/config"
+	"github.com/rs/zerolog/log"
 )
 
 type job struct {
@@ -36,16 +36,14 @@ func (j *job) Run(ctx context.Context) error {
 	for i := 0; i < len(points); i++ {
 		point := points[i]
 
-		log.Println("")
-
-		log.Printf("Trying to insert point for %s", point.Icao24)
+		log.Info().Str("point", point.Icao24).Msg("Trying to insert point")
 
 		if err = operation.InsertPoint(ctx, &point); err != nil {
-			log.Printf("Cannot insert point for %s, error is %s", point.Icao24, err)
+			log.Warn().Err(err).Str("point", point.Icao24).Msg("Cannot insert point")
 			continue
 		}
 
-		log.Printf("Figuring out if %s overlaps with %s", point.Icao24, villeray.Name)
+		log.Info().Str("point", point.Icao24).Str("district", villeray.Name).Msg("Figuring out if point overlaps with district")
 
 		err = operation.UpdateOverlaps(ctx, villeray, &point)
 

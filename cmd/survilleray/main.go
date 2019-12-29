@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"log"
 	"os"
 
 	"github.com/mlhamel/survilleray/pkg/acquisition"
@@ -11,6 +10,7 @@ import (
 	"github.com/mlhamel/survilleray/pkg/scheduler"
 	"github.com/mlhamel/survilleray/pkg/vectorization"
 	"github.com/urfave/cli"
+	"github.com/rs/zerolog/log"
 )
 
 func main() {
@@ -58,6 +58,6 @@ func main() {
 
 	err := cliApp.Run(os.Args)
 	if err != nil {
-		log.Fatal(err)
+		log.Error().Err(err)
 	}
 }

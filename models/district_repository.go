@@ -2,7 +2,7 @@ package models
 
 import "github.com/mlhamel/survilleray/pkg/config"
 
-import "log"
+import "github.com/rs/zerolog/log"
 
 type DistrictRepository interface {
 	Find() ([]*District, error)
@@ -59,7 +59,10 @@ func (d *districtRepository) Insert(district *District) error {
 }
 
 func (d *districtRepository) AppendPoint(district *District, point *Point) error {
-	log.Printf("Inserting point %s in district %s", point.Icao24, district.Name)
+	log.Info().
+		Str("point", point.Icao24).
+		Str("district", district.Name).
+		Msg("Inserting point in district")
 	return d.cfg.
 		Database().
 		Model(district).

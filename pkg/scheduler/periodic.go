@@ -2,14 +2,14 @@ package scheduler
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/pior/runnable"
+	"github.com/rs/zerolog/log"
 )
 
 func Periodic(duration time.Duration, runner runnable.Runnable) runnable.Runnable {
-	log.Printf("Initializing periodic runner for %s", fmtDuration(duration))
+	log.Info().Str("duration", fmtDuration(duration)).Msg("Initializing periodic runner")
 	return &periodicRunnable{duration, runner}
 }
 
@@ -19,7 +19,7 @@ type periodicRunnable struct {
 }
 
 func (periodic *periodicRunnable) Run(ctx context.Context) error {
-	log.Printf("Running periodic runner")
+	log.Info().Msg("Running periodic runner")
 
 	errs := make(chan error, 1)
 	done := make(chan bool)
@@ -31,7 +31,7 @@ func (periodic *periodicRunnable) Run(ctx context.Context) error {
 
 	select {
 	case <-ctx.Done():
-		log.Printf("Finishing running periodic runner")
+		log.Info().Msg("Finishing running periodic runner")
 		done <- true
 		return nil
 	case err := <-errs:
@@ -44,19 +44,19 @@ func (periodic *periodicRunnable) runForever(ctx context.Context, errs chan<- er
 	defer ticker.Stop()
 
 	for {
-		log.Printf("Running again...")
+		log.Info().Msg("Running again...")
 		select {
 		case <-done:
-			log.Printf("Finishing running forever")
+			log.Info().Msg("Finishing running forever")
 			return
 		case <-ticker.C:
-			log.Printf("Waking up, running underlying runnable")
+			log.Info().Msg("Waking up, running underlying runnable")
 
 			if err := periodic.runner.Run(ctx); err != nil {
+				log.Error().Err(err).Msg("Error while running the runnable")
 				errs <- err
 				return
 			}
 		}
 	}
-	log.Printf("Finishing")
 }

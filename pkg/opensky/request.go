@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 
 	"github.com/mlhamel/survilleray/models"
+	"github.com/rs/zerolog/log"
 )
 
 // Request is used for requesting new data to OpenSky
@@ -30,7 +30,7 @@ func NewRequest(url string) *Request {
 func (r *Request) GetPlanes(ctx context.Context) (points []models.Point, e error) {
 	parsedURL := fmt.Sprintf(r.url, 44, 47, -74, -72)
 
-	log.Printf("Getting data from %s", parsedURL)
+	log.Info().Str("url", parsedURL).Msg("Getting data")
 
 	resp, err := http.Get(parsedURL)
 
@@ -40,11 +40,11 @@ func (r *Request) GetPlanes(ctx context.Context) (points []models.Point, e error
 
 	defer resp.Body.Close()
 
-	log.Print("Parsing body from response")
+	log.Info().Str("status", resp.Status).Msg("Getting response")
 
 	body, err := ioutil.ReadAll(resp.Body)
 
-	log.Printf("Got response with %s", body)
+	log.Info().Str("body", string(body)).Msg("Parsing body")
 
 	if err != nil {
 		return points, err
