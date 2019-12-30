@@ -29,6 +29,7 @@ up:
 commands:
   acquire: bin/survilleray acquire
   build: go build -o bin/survilleray cmd/survilleray/main.go
+  collect: bin/survilleray collect
   db:drop:
     desc: "Drop current database"
     run:  dropdb --username=postgres --host=survilleray.railgun survilleray_development

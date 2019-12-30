@@ -6,7 +6,7 @@ import (
 
 	"github.com/mlhamel/survilleray/models"
 	"github.com/mlhamel/survilleray/pkg/opensky"
-	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog"
 )
 
 var ErrPointNotOverlaps = errors.New("point does not overlaps with district")
@@ -18,32 +18,33 @@ type Operation interface {
 }
 
 type operationImpl struct {
+	logger        *zerolog.Logger
 	pointRepos    models.PointRepository
 	districtRepos models.DistrictRepository
 }
 
-func NewOperation(pointRepos models.PointRepository, districtRepos models.DistrictRepository) Operation {
-	return &operationImpl{pointRepos, districtRepos}
+func NewOperation(logger *zerolog.Logger, pointRepos models.PointRepository, districtRepos models.DistrictRepository) Operation {
+	return &operationImpl{logger, pointRepos, districtRepos}
 }
 
 func (o *operationImpl) GetLatestPoint(ctx context.Context, url string) ([]models.Point, error) {
-	return opensky.NewRequest(url).GetPlanes(ctx)
+	return opensky.NewRequestWithLogger(url, o.logger).GetPlanes(ctx)
 }
 
 func (o *operationImpl) InsertPoint(ctx context.Context, point *models.Point) error {
 	err := o.pointRepos.Create(point)
 
 	if err == nil {
-		log.Info().Str("point", point.Icao24).Msg("Inserting point")
+		o.logger.Info().Str("point", point.Icao24).Msg("Inserting point")
 		return nil
 	}
 
 	if err.Error() == models.ErrorPointalreadyExisted.Error() {
-		log.Info().Str("point", point.Icao24).Msg("Point already existed")
+		o.logger.Info().Str("point", point.Icao24).Msg("Point already existed")
 		return nil
 	}
 
-	log.Error().Err(err).Str("point", point.Icao24).Msg("Cannot insert point")
+	o.logger.Error().Err(err).Str("point", point.Icao24).Msg("Cannot insert point")
 
 	return err
 }
@@ -56,11 +57,11 @@ func (o *operationImpl) UpdateOverlaps(ctx context.Context, district *models.Dis
 	}
 
 	if !overlaps {
-		log.Info().Str("point", point.Icao24).Str("district", district.Name).Msg("Point does not overlaps with district")
+		o.logger.Info().Str("point", point.Icao24).Str("district", district.Name).Msg("Point does not overlaps with district")
 		return ErrPointNotOverlaps
 	}
 
-	log.Info().Str("point", point.Icao24).Str("district", district.Name).Msg("Point overlaps with district")
+	o.logger.Info().Str("point", point.Icao24).Str("district", district.Name).Msg("Point overlaps with district")
 
 	return o.districtRepos.AppendPoint(district, point)
 }

@@ -9,7 +9,6 @@ import (
 	"github.com/mlhamel/survilleray/pkg/config"
 	"github.com/mlhamel/survilleray/pkg/scheduler"
 	"github.com/mlhamel/survilleray/pkg/vectorization"
-	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli"
 )
 
@@ -27,7 +26,7 @@ func main() {
 			},
 		},
 		{
-			Name: "collection",
+			Name: "collect",
 			Action: func(*cli.Context) error {
 				collectionApp := app.NewCollectionApp(cfg)
 				return collectionApp.Run(ctx)
@@ -65,6 +64,6 @@ func main() {
 
 	err := cliApp.Run(os.Args)
 	if err != nil {
-		log.Error().Err(err)
+		cfg.Logger().Error().Err(err)
 	}
 }

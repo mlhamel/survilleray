@@ -20,6 +20,8 @@ github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSs
 github.com/denisenkom/go-mssqldb v0.0.0-20190515213511-eb9f6a1743f3/go.mod h1:zAg7JM8CkOJ43xKXIj7eRO9kmWm/TW578qo+oDO6tuM=
 github.com/denisenkom/go-mssqldb v0.0.0-20190905012053-7920e8ef8898 h1:k8H/+fDu0ZFdf2kn63tHfyU5oZXCijoPFSKtpznVVKM=
 github.com/denisenkom/go-mssqldb v0.0.0-20190905012053-7920e8ef8898/go.mod h1:xbL0rPBG9cCiLr28tMa8zpbdarY27NDyej4t/EjAShU=
+github.com/dn365/gin-zerolog v0.0.0-20171227063204-b43714b00db1 h1:qwfOp+dwJnhdRFWsXkRMb+EZz0BgMQ8VD77OgBjuRUQ=
+github.com/dn365/gin-zerolog v0.0.0-20171227063204-b43714b00db1/go.mod h1:AAlcXL9Ejp3TUsJRWJtjbIpK3p1L9z987raCTYL17j4=
 github.com/eapache/go-resiliency v1.1.0/go.mod h1:kFI+JgMyC7bLPUVY133qvEBtVayf5mFgVsvEsIPBvNs=
 github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21/go.mod h1:+020luEh2TKB4/GOp8oxxtq0Daoen/Cii55CzbTV6DU=
 github.com/eapache/queue v1.1.0/go.mod h1:6eCeP0CKFpHLu8blIFXhExK/dRa7WDZfr6jVFPTqq+I=

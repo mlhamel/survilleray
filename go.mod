@@ -5,6 +5,7 @@ go 1.13
 require (
 	github.com/DATA-DOG/go-txdb v0.1.3
 	github.com/denisenkom/go-mssqldb v0.0.0-20190905012053-7920e8ef8898 // indirect
+	github.com/dn365/gin-zerolog v0.0.0-20171227063204-b43714b00db1
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/gin-gonic/gin v1.4.0
 	github.com/go-spatial/geom v0.0.0-20191105001616-fc185492200b

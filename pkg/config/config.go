@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/jinzhu/gorm"
+	"github.com/rs/zerolog"
 	"github.com/xo/dburl"
 )
 
@@ -15,6 +17,7 @@ type Config struct {
 	parsedURL   *dburl.URL
 	httpPort    string
 	database    *gorm.DB
+	log         *zerolog.Logger
 }
 
 // NewConfig create a new configuration object
@@ -22,6 +25,10 @@ func NewConfig() *Config {
 	url := GetEnv("DATABASE_URL", "")
 	httpPort := GetEnv("PORT", "8080")
 	parsedURL, err := dburl.Parse(url)
+
+	output := zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}
+
+	log := zerolog.New(output).With().Timestamp().Logger()
 
 	if err != nil {
 		panic(err)
@@ -31,6 +38,7 @@ func NewConfig() *Config {
 		DatabaseURL: url,
 		parsedURL:   parsedURL,
 		httpPort:    httpPort,
+		log:         &log,
 	}
 }
 
@@ -53,6 +61,10 @@ func (c *Config) Hostname() string {
 
 func (c *Config) HttpPort() string {
 	return c.httpPort
+}
+
+func (c *Config) Logger() *zerolog.Logger {
+	return c.log
 }
 
 // Port of the configured database

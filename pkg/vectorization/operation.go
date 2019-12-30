@@ -7,7 +7,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/mlhamel/survilleray/models"
-	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog"
 )
 
 type Operation interface {
@@ -16,23 +16,24 @@ type Operation interface {
 	MarkPointAsVectorized(context.Context, *models.Point) error
 }
 
-type OperationImpl struct {
+type operationImpl struct {
+	logger           *zerolog.Logger
 	pointRepository  models.PointRepository
 	vectorRepository models.VectorRepository
 }
 
-func NewOperation(pointRepository models.PointRepository, vectorRepository models.VectorRepository) Operation {
-	return &OperationImpl{pointRepository, vectorRepository}
+func NewOperation(logger *zerolog.Logger, pointRepository models.PointRepository, vectorRepository models.VectorRepository) Operation {
+	return &operationImpl{logger, pointRepository, vectorRepository}
 }
 
-func (operation *OperationImpl) RetrieveVectorFromPoint(ctx context.Context, point *models.Point) (*models.Vector, error) {
-	vector, err := operation.vectorRepository.FindByCallSign(point.CallSign)
+func (o *operationImpl) RetrieveVectorFromPoint(ctx context.Context, point *models.Point) (*models.Vector, error) {
+	vector, err := o.vectorRepository.FindByCallSign(point.CallSign)
 
 	if gorm.IsRecordNotFoundError(err) {
-		log.Info().Str("point", point.String()).Msg("Creating vector for point")
+		o.logger.Info().Str("point", point.String()).Msg("Creating vector for point")
 		vector = models.NewVectorFromPoint(point)
 
-		if err = operation.vectorRepository.Create(vector); err != nil {
+		if err = o.vectorRepository.Create(vector); err != nil {
 			return nil, fmt.Errorf("Cannot create vector: %w", err)
 		}
 	}
@@ -44,13 +45,13 @@ func (operation *OperationImpl) RetrieveVectorFromPoint(ctx context.Context, poi
 	return vector, nil
 }
 
-func (operation *OperationImpl) AddPointToVector(ctx context.Context, point *models.Point, vector *models.Vector) error {
-	if err := operation.vectorRepository.AppendPoints(vector, []*models.Point{point}); err != nil {
+func (o *operationImpl) AddPointToVector(ctx context.Context, point *models.Point, vector *models.Vector) error {
+	if err := o.vectorRepository.AppendPoints(vector, []*models.Point{point}); err != nil {
 		return fmt.Errorf("Cannot add point to the matching vector: %w", err)
 	}
 
 	if point.OnGround {
-		if err := operation.vectorRepository.Update(vector, map[string]interface{}{"Closed": true}); err != nil {
+		if err := o.vectorRepository.Update(vector, map[string]interface{}{"Closed": true}); err != nil {
 			return fmt.Errorf("Cannot update Closed for a vector: %w", err)
 		}
 	}
@@ -58,6 +59,6 @@ func (operation *OperationImpl) AddPointToVector(ctx context.Context, point *mod
 	return nil
 }
 
-func (operation *OperationImpl) MarkPointAsVectorized(ctx context.Context, point *models.Point) error {
-	return operation.pointRepository.Update(point, map[string]interface{}{"VectorizedAt": time.Now()})
+func (o *operationImpl) MarkPointAsVectorized(ctx context.Context, point *models.Point) error {
+	return o.pointRepository.Update(point, map[string]interface{}{"VectorizedAt": time.Now()})
 }

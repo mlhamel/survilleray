@@ -32,8 +32,7 @@ func (v *Vector) MarshalZerologObject(e *zerolog.Event) {
 	e.Str("Icao24", v.Icao24).
 		Str("CallSign", v.CallSign).
 		Str("Country", v.Country).
-		Bool("Closed", v.Closed).
-		Msgf("%d Points", len(v.Points))
+		Bool("Closed", v.Closed)
 }
 
 type VectorRepository interface {
