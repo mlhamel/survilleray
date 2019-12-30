@@ -9,7 +9,6 @@ import (
 	"github.com/mlhamel/survilleray/pkg/config"
 	"github.com/mlhamel/survilleray/pkg/vectorization"
 	"github.com/pior/runnable"
-	"github.com/rs/zerolog/log"
 )
 
 type Scheduler struct {
@@ -20,12 +19,10 @@ func NewScheduler(cfg *config.Config) Scheduler {
 	return Scheduler{cfg}
 }
 
-func (scheduler *Scheduler) Run(ctx context.Context) error {
-	log.Info().Msg("Running Survilleray Scheduler")
-
-	acquisitionApp := acquisition.NewApp(scheduler.cfg)
-	collectionApp := app.NewCollectionApp(scheduler.cfg)
-	vectorizeApp := vectorization.NewApp(scheduler.cfg)
+func (s *Scheduler) Run(ctx context.Context) error {
+	acquisitionApp := acquisition.NewApp(s.cfg)
+	collectionApp := app.NewCollectionApp(s.cfg)
+	vectorizeApp := vectorization.NewApp(s.cfg)
 
 	group := runnable.Group(
 		vectorizeApp,
@@ -34,6 +31,6 @@ func (scheduler *Scheduler) Run(ctx context.Context) error {
 	)
 
 	return runnable.
-		Signal(Periodic(time.Second*15, group)).
+		Signal(Periodic(s.cfg, time.Minute*2, group)).
 		Run(ctx)
 }

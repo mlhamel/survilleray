@@ -4,26 +4,30 @@ import (
 	"context"
 	"time"
 
+	"github.com/mlhamel/survilleray/pkg/config"
 	"github.com/pior/runnable"
 )
 
-func Periodic(duration time.Duration, runner runnable.Runnable) runnable.Runnable {
-	return &periodicRunnable{duration, runner}
+func Periodic(cfg *config.Config, duration time.Duration, runner runnable.Runnable) runnable.Runnable {
+	return &periodicRunnable{cfg, duration, runner}
 }
 
 type periodicRunnable struct {
+	cfg      *config.Config
 	duration time.Duration
 	runner   runnable.Runnable
 }
 
-func (periodic *periodicRunnable) Run(ctx context.Context) error {
+func (p *periodicRunnable) Run(ctx context.Context) error {
+	p.cfg.Logger().Info().Msg("Initializing periodic runner")
+
 	errs := make(chan error, 1)
 	done := make(chan bool)
 
 	defer close(errs)
 	defer close(done)
 
-	go periodic.runForever(ctx, errs, done)
+	go p.runForever(ctx, errs, done)
 
 	select {
 	case <-ctx.Done():
@@ -34,16 +38,18 @@ func (periodic *periodicRunnable) Run(ctx context.Context) error {
 	}
 }
 
-func (periodic *periodicRunnable) runForever(ctx context.Context, errs chan<- error, done chan bool) {
-	ticker := time.NewTicker(periodic.duration)
+func (p *periodicRunnable) runForever(ctx context.Context, errs chan<- error, done chan bool) {
+	ticker := time.NewTicker(p.duration)
 	defer ticker.Stop()
 
 	for {
+		p.cfg.Logger().Info().Str("duration", fmtDuration(p.duration)).Msg("Sleeping")
 		select {
 		case <-done:
 			return
 		case <-ticker.C:
-			if err := periodic.runner.Run(ctx); err != nil {
+			p.cfg.Logger().Info().Msg("Running")
+			if err := p.runner.Run(ctx); err != nil {
 				errs <- err
 				return
 			}
