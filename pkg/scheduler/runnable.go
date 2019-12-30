@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/mlhamel/survilleray/pkg/acquisition"
+	"github.com/mlhamel/survilleray/pkg/app"
 	"github.com/mlhamel/survilleray/pkg/config"
 	"github.com/mlhamel/survilleray/pkg/vectorization"
 	"github.com/pior/runnable"
@@ -21,11 +22,14 @@ func NewScheduler(cfg *config.Config) Scheduler {
 
 func (scheduler *Scheduler) Run(ctx context.Context) error {
 	log.Info().Msg("Running Survilleray Scheduler")
+
 	acquisitionApp := acquisition.NewApp(scheduler.cfg)
+	collectionApp := app.NewCollectionApp(scheduler.cfg)
 	vectorizeApp := vectorization.NewApp(scheduler.cfg)
 
 	group := runnable.Group(
 		vectorizeApp,
+		collectionApp,
 		acquisitionApp,
 	)
 
