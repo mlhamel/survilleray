@@ -8,12 +8,13 @@ import (
 	"net/http"
 
 	"github.com/mlhamel/survilleray/models"
-	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog"
 )
 
 // Request is used for requesting new data to OpenSky
 type Request struct {
-	url string
+	url    string
+	logger *zerolog.Logger
 }
 
 type parsedRequest struct {
@@ -23,14 +24,18 @@ type parsedRequest struct {
 
 // NewRequest is creating a new OpenSky request
 func NewRequest(url string) *Request {
-	return &Request{url: url}
+	return &Request{url: url, logger: &zerolog.Logger{}}
+}
+
+func NewRequestWithLogger(url string, logger *zerolog.Logger) *Request {
+	return &Request{url: url, logger: logger}
 }
 
 // GetPlanes a request to OpenSky
 func (r *Request) GetPlanes(ctx context.Context) (points []models.Point, e error) {
 	parsedURL := fmt.Sprintf(r.url, 44, 47, -74, -72)
 
-	log.Info().Str("url", parsedURL).Msg("Getting data")
+	r.logger.Info().Str("url", parsedURL).Msg("Getting data")
 
 	resp, err := http.Get(parsedURL)
 
@@ -40,11 +45,11 @@ func (r *Request) GetPlanes(ctx context.Context) (points []models.Point, e error
 
 	defer resp.Body.Close()
 
-	log.Info().Str("status", resp.Status).Msg("Getting response")
+	r.logger.Info().Str("status", resp.Status).Msg("Getting response")
 
 	body, err := ioutil.ReadAll(resp.Body)
 
-	log.Info().Str("body", string(body)).Msg("Parsing body")
+	r.logger.Info().Str("body", string(body)).Msg("Parsing body")
 
 	if err != nil {
 		return points, err

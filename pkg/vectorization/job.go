@@ -25,7 +25,7 @@ func (job *Job) Run(ctx context.Context) error {
 		return fmt.Errorf("Cannot find points to vectorize: %w", err)
 	}
 
-	operation := NewOperation(job.pointRepos, job.vectorRepos)
+	operation := NewOperation(job.cfg.Logger(), job.pointRepos, job.vectorRepos)
 
 	for i := 0; i < len(points); i++ {
 		tx := job.cfg.Database().Begin()

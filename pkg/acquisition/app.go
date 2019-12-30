@@ -5,7 +5,6 @@ import (
 
 	"github.com/mlhamel/survilleray/models"
 	"github.com/mlhamel/survilleray/pkg/config"
-	"github.com/rs/zerolog/log"
 )
 
 type app struct {
@@ -22,7 +21,7 @@ func NewApp(cfg *config.Config) *app {
 }
 
 func (a *app) Run(ctx context.Context) error {
-	log.Info().Msg("Running acquisition")
+	a.cfg.Logger().Info().Msg("Running acquisition")
 	job := NewJob(a.cfg, a.pointRepos, a.districtRepos)
 
 	return job.Run(ctx)
