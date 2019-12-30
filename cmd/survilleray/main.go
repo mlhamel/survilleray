@@ -9,8 +9,8 @@ import (
 	"github.com/mlhamel/survilleray/pkg/config"
 	"github.com/mlhamel/survilleray/pkg/scheduler"
 	"github.com/mlhamel/survilleray/pkg/vectorization"
-	"github.com/urfave/cli"
 	"github.com/rs/zerolog/log"
+	"github.com/urfave/cli"
 )
 
 func main() {
@@ -24,6 +24,13 @@ func main() {
 			Action: func(*cli.Context) error {
 				acquisitionApp := acquisition.NewApp(cfg)
 				return acquisitionApp.Run(ctx)
+			},
+		},
+		{
+			Name: "collection",
+			Action: func(*cli.Context) error {
+				collectionApp := app.NewCollectionApp(cfg)
+				return collectionApp.Run(ctx)
 			},
 		},
 		{

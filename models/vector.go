@@ -5,6 +5,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/mlhamel/survilleray/pkg/config"
+	"github.com/rs/zerolog"
 )
 
 var ErrorVectorAlreadyExisted = errors.New("Point already existed")
@@ -27,10 +28,19 @@ func NewVectorFromPoint(point *Point) *Vector {
 	}
 }
 
+func (v *Vector) MarshalZerologObject(e *zerolog.Event) {
+	e.Str("Icao24", v.Icao24).
+		Str("CallSign", v.CallSign).
+		Str("Country", v.Country).
+		Bool("Closed", v.Closed).
+		Msgf("%d Points", len(v.Points))
+}
+
 type VectorRepository interface {
 	Find() ([]Vector, error)
 	FindByPoint(*Point) ([]Vector, error)
 	FindByCallSign(string) (*Vector, error)
+	FindByClosed(bool) ([]Vector, error)
 	Create(*Vector) error
 	Insert(*Vector) error
 	AppendPoints(*Vector, []*Point) error
@@ -38,17 +48,17 @@ type VectorRepository interface {
 }
 
 func NewVectorRepository(cfg *config.Config) VectorRepository {
-	return &vectoryRepository{cfg}
+	return &vectorRepository{cfg}
 }
 
-type vectoryRepository struct {
+type vectorRepository struct {
 	cfg *config.Config
 }
 
-func (repository *vectoryRepository) Find() ([]Vector, error) {
+func (r *vectorRepository) Find() ([]Vector, error) {
 	var vectors []Vector
 
-	err := repository.cfg.Database().Find(&vectors).Error
+	err := r.cfg.Database().Find(&vectors).Error
 
 	if err != nil {
 		return nil, err
@@ -57,11 +67,10 @@ func (repository *vectoryRepository) Find() ([]Vector, error) {
 	return vectors, nil
 }
 
-func (repository *vectoryRepository) FindByPoint(point *Point) ([]Vector, error) {
+func (r *vectorRepository) FindByPoint(point *Point) ([]Vector, error) {
 	var vectors []Vector
 
-	err := repository.cfg.
-		Database().
+	err := r.cfg.Database().
 		Where(map[string]interface{}{
 			"icao24":    point.Icao24,
 			"call_sign": point.CallSign,
@@ -76,11 +85,10 @@ func (repository *vectoryRepository) FindByPoint(point *Point) ([]Vector, error)
 	return vectors, nil
 }
 
-func (repository *vectoryRepository) FindByCallSign(callsign string) (*Vector, error) {
+func (r *vectorRepository) FindByCallSign(callsign string) (*Vector, error) {
 	var vector Vector
 
-	err := repository.cfg.
-		Database().
+	err := r.cfg.Database().
 		Where(map[string]interface{}{
 			"call_sign": callsign,
 			"closed":    false}).
@@ -94,30 +102,40 @@ func (repository *vectoryRepository) FindByCallSign(callsign string) (*Vector, e
 	return &vector, err
 }
 
-func (repository *vectoryRepository) Create(vector *Vector) error {
-	if !repository.cfg.Database().NewRecord(vector) {
+func (r *vectorRepository) FindByClosed(closed bool) ([]Vector, error) {
+	var vectors []Vector
+
+	err := r.cfg.Database().
+		Where(map[string]interface{}{"closed": closed}).
+		Find(&vectors).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return vectors, nil
+}
+
+func (r *vectorRepository) Create(vector *Vector) error {
+	if !r.cfg.Database().NewRecord(vector) {
 		return ErrorVectorAlreadyExisted
 	}
-	return repository.cfg.Database().Create(&vector).Error
+	return r.cfg.Database().Create(&vector).Error
 }
 
-func (repository *vectoryRepository) Insert(vector *Vector) error {
-	return repository.cfg.
-		Database().
-		Create(vector).Error
+func (r *vectorRepository) Insert(vector *Vector) error {
+	return r.cfg.Database().Create(vector).Error
 }
 
-func (repository *vectoryRepository) AppendPoints(vector *Vector, points []*Point) error {
-	return repository.cfg.
-		Database().
+func (r *vectorRepository) AppendPoints(vector *Vector, points []*Point) error {
+	return r.cfg.Database().
 		Model(vector).
 		Association("Points").
 		Append(points).Error
 }
 
-func (repository *vectoryRepository) Update(vector *Vector, attrs ...interface{}) error {
-	return repository.cfg.
-		Database().
+func (r *vectorRepository) Update(vector *Vector, attrs ...interface{}) error {
+	return r.cfg.Database().
 		Model(vector).
 		Update(attrs...).Error
 }

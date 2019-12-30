@@ -9,6 +9,7 @@ import (
 	"github.com/go-spatial/geom"
 	"github.com/jinzhu/gorm"
 	"github.com/mlhamel/survilleray/pkg/config"
+	"github.com/rs/zerolog"
 )
 
 var ErrorPointalreadyExisted = errors.New("Point already existed")
@@ -77,6 +78,27 @@ func (p *Point) CheckOverlaps(district *District) (bool, error) {
 	}
 
 	return extent.ContainsGeom(p.Geography())
+}
+
+func (p *Point) MarshalZerologObject(e *zerolog.Event) {
+	e.Str("Icao24", p.Icao24).
+		Str("CallSign", p.CallSign).
+		Str("OriginCountry", p.OriginCountry).
+		Float64("TimePosition", p.TimePosition).
+		Float64("LastContact", p.LastContact).
+		Float64("Longitude", p.Longitude).
+		Float64("Latitude", p.Latitude).
+		Float64("GeoAltitude", p.GeoAltitude).
+		Bool("OnGround", p.OnGround).
+		Float64("Velocity", p.Velocity).
+		Float64("Heading", p.Heading).
+		Float64("VerticalRate", p.VerticalRate).
+		Str("Sensors", p.Sensors).
+		Float64("BaroAltitude", p.BaroAltitude).
+		Str("Squawk", p.Squawk).
+		Bool("Spi", p.Spi).
+		Float64("PositionSource", p.PositionSource).
+		Time("VectorizedAt", p.VectorizedAt)
 }
 
 func NewPointRepository(cfg *config.Config) PointRepository {
