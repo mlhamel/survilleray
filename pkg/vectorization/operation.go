@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/DataDog/datadog-go/statsd"
 	"github.com/jinzhu/gorm"
 	"github.com/mlhamel/survilleray/models"
 	"github.com/rs/zerolog"
@@ -17,13 +18,14 @@ type Operation interface {
 }
 
 type operationImpl struct {
+	statsd           *statsd.Client
 	logger           *zerolog.Logger
 	pointRepository  models.PointRepository
 	vectorRepository models.VectorRepository
 }
 
-func NewOperation(logger *zerolog.Logger, pointRepository models.PointRepository, vectorRepository models.VectorRepository) Operation {
-	return &operationImpl{logger, pointRepository, vectorRepository}
+func NewOperation(statsd *statsd.Client, logger *zerolog.Logger, pointRepository models.PointRepository, vectorRepository models.VectorRepository) Operation {
+	return &operationImpl{statsd, logger, pointRepository, vectorRepository}
 }
 
 func (o *operationImpl) RetrieveVectorFromPoint(ctx context.Context, point *models.Point) (*models.Vector, error) {
@@ -32,10 +34,12 @@ func (o *operationImpl) RetrieveVectorFromPoint(ctx context.Context, point *mode
 	if gorm.IsRecordNotFoundError(err) {
 		o.logger.Info().Str("point", point.String()).Msg("Creating vector for point")
 		vector = models.NewVectorFromPoint(point)
-
+		o.statsd.Incr("vectorization.retrieve_vector_from_point.new", []string{}, 1)
 		if err = o.vectorRepository.Create(vector); err != nil {
 			return nil, fmt.Errorf("Cannot create vector: %w", err)
 		}
+	} else {
+		o.statsd.Incr("vectorization.retrieve_vector_from_point.update", []string{}, 1)
 	}
 
 	if err != nil {
