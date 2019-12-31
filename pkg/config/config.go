@@ -36,7 +36,7 @@ func NewConfig() *Config {
 		panic(err)
 	}
 
-	statsd, err := statsd.New("")
+	statsd, err := statsd.New("127.0.0.1:8125")
 
 	if err != nil {
 		panic(err)
