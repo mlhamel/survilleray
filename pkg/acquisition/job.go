@@ -33,12 +33,16 @@ func (j *job) Run(ctx context.Context) error {
 		return err
 	}
 
+	j.cfg.Statsd().
+		Gauge("acquistion.job.found", float64(len(points)), []string{}, 1)
+
 	for i := 0; i < len(points); i++ {
 		point := points[i]
 
 		logger.Info().Str("point", point.Icao24).Msg("Trying to insert point")
 
 		if err = operation.InsertPoint(ctx, &point); err != nil {
+			j.cfg.Statsd().Incr("acquistion.job.invalid", []string{}, 1)
 			logger.Warn().Err(err).Str("point", point.Icao24).Msg("Cannot insert point")
 			continue
 		}
@@ -51,12 +55,15 @@ func (j *job) Run(ctx context.Context) error {
 		err = operation.UpdateOverlaps(ctx, villeray, &point)
 
 		if err == ErrPointNotOverlaps {
+			j.cfg.Statsd().Incr("acquistion.job.nooverlaps", []string{}, 1)
 			err = nil
 		}
 
 		if err != nil {
 			return err
 		}
+
+		j.cfg.Statsd().Incr("acquistion.job.overlaps", []string{}, 1)
 	}
 
 	return nil
