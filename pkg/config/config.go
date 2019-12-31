@@ -36,7 +36,7 @@ func NewConfig() *Config {
 		panic(err)
 	}
 
-	statsd, err := statsd.New("127.0.0.1:8125")
+	statsd, err := statsd.New("127.0.0.1:8125", statsd.WithNamespace("survilleray."))
 
 	if err != nil {
 		panic(err)
@@ -128,7 +128,6 @@ func (c *Config) OpenSkyURL() string {
 }
 
 func (c *Config) Statsd() *statsd.Client {
-	c.statsd.Namespace = "survilleray"
 	return c.statsd
 }
 
