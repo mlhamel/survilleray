@@ -128,6 +128,7 @@ func (c *Config) OpenSkyURL() string {
 }
 
 func (c *Config) Statsd() *statsd.Client {
+	c.statsd.Namespace = "survilleray"
 	return c.statsd
 }
 
