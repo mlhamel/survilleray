@@ -57,13 +57,13 @@ func (j *job) Run(ctx context.Context) error {
 		if err == ErrPointNotOverlaps {
 			j.cfg.Statsd().Incr("acquistion.job.nooverlaps", []string{}, 1)
 			err = nil
+		} else {
+			j.cfg.Statsd().Incr("acquistion.job.overlaps", []string{}, 1)
 		}
 
 		if err != nil {
 			return err
 		}
-
-		j.cfg.Statsd().Incr("acquistion.job.overlaps", []string{}, 1)
 	}
 
 	return nil
