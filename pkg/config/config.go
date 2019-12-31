@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/DataDog/datadog-go/statsd"
 	"github.com/jinzhu/gorm"
 	"github.com/rs/zerolog"
 	"github.com/xo/dburl"
-	"github.com/DataDog/datadog-go/statsd"
 )
 
 // Config represent the main configuration
@@ -36,7 +36,7 @@ func NewConfig() *Config {
 		panic(err)
 	}
 
-	statsd, err := statsd.New("127.0.0.1:8125")
+	statsd, err := statsd.New("")
 
 	if err != nil {
 		panic(err)
@@ -47,7 +47,7 @@ func NewConfig() *Config {
 		parsedURL:   parsedURL,
 		httpPort:    httpPort,
 		log:         &log,
-		statsd: 	 statsd,
+		statsd:      statsd,
 	}
 }
 
