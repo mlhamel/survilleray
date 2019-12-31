@@ -15,3 +15,8 @@ You can clone the project and install it locally using the following commands:
 ```
 $ bud clone git@github.com:mlhamel/survilleray.git
 $ bud up
+```
+
+### Credits
+
+* [Opensky](https://opensky-network.org/)
