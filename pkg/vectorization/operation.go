@@ -34,19 +34,13 @@ func (o *operationImpl) RetrieveVectorFromPoint(ctx context.Context, point *mode
 	if gorm.IsRecordNotFoundError(err) {
 		o.logger.Info().Str("point", point.String()).Msg("Creating vector for point")
 		vector = models.NewVectorFromPoint(point)
-		o.statsd.Incr("vectorization.retrieve_vector_from_point.new", []string{
-			fmt.Sprintf("OriginCountry:%s", point.OriginCountry),
-			fmt.Sprintf("Longitude:%f", point.Longitude),
-			fmt.Sprintf("Latitude:%f", point.Latitude),
-			fmt.Sprintf("GeoAltitude:%f", point.GeoAltitude),
-			fmt.Sprintf("Velocity:%f", point.Velocity),
-			fmt.Sprintf("BaroAltitude:%f", point.BaroAltitude),
-		}, 1)
+		o.statsd.Incr("vectorization.retrieve_vector_from_point.new", makeTags(point), 1)
 		if err = o.vectorRepository.Create(vector); err != nil {
 			return nil, fmt.Errorf("Cannot create vector: %w", err)
 		}
 	} else {
-		o.statsd.Incr("vectorization.retrieve_vector_from_point.update", []string{}, 1)
+		o.statsd.Gauge("altitude", point.GeoAltitude, makeTags(point), 1)
+		o.statsd.Incr("vectorization.retrieve_vector_from_point.update", makeTags(point), 1)
 	}
 
 	if err != nil {
@@ -54,6 +48,17 @@ func (o *operationImpl) RetrieveVectorFromPoint(ctx context.Context, point *mode
 	}
 
 	return vector, nil
+}
+
+func makeTags(point *models.Point) []string {
+	return []string{
+		fmt.Sprintf("OriginCountry:%s", point.OriginCountry),
+		fmt.Sprintf("Longitude:%f", point.Longitude),
+		fmt.Sprintf("Latitude:%f", point.Latitude),
+		fmt.Sprintf("GeoAltitude:%f", point.GeoAltitude),
+		fmt.Sprintf("Velocity:%f", point.Velocity),
+		fmt.Sprintf("BaroAltitude:%f", point.BaroAltitude),
+	}
 }
 
 func (o *operationImpl) AddPointToVector(ctx context.Context, point *models.Point, vector *models.Vector) error {
