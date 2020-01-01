@@ -51,14 +51,7 @@ func (o *operationImpl) RetrieveVectorFromPoint(ctx context.Context, point *mode
 }
 
 func makeTags(point *models.Point) []string {
-	return []string{
-		fmt.Sprintf("OriginCountry:%s", point.OriginCountry),
-		fmt.Sprintf("Longitude:%f", point.Longitude),
-		fmt.Sprintf("Latitude:%f", point.Latitude),
-		fmt.Sprintf("GeoAltitude:%f", point.GeoAltitude),
-		fmt.Sprintf("Velocity:%f", point.Velocity),
-		fmt.Sprintf("BaroAltitude:%f", point.BaroAltitude),
-	}
+	return []string{fmt.Sprintf("OriginCountry:%s", point.OriginCountry)}
 }
 
 func (o *operationImpl) AddPointToVector(ctx context.Context, point *models.Point, vector *models.Vector) error {
