@@ -40,6 +40,7 @@ func (o *operationImpl) RetrieveVectorFromPoint(ctx context.Context, point *mode
 		}
 	} else {
 		o.statsd.Gauge("altitude", point.GeoAltitude, makeTags(point), 1)
+		o.statsd.Gauge("Velocity", point.Velocity, makeTags(point), 1)
 		o.statsd.Incr("vectorization.retrieve_vector_from_point.update", makeTags(point), 1)
 	}
 
