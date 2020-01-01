@@ -31,16 +31,7 @@ func NewOperation(statsd *statsd.Client, logger *zerolog.Logger, pointRepository
 func (o *operationImpl) RetrieveVectorFromPoint(ctx context.Context, point *models.Point) (*models.Vector, error) {
 	vector, err := o.vectorRepository.FindByCallSign(point.CallSign)
 
-	if vector != nil && vector.Icao24 != point.Icao24 {
-		vector = nil
-	}
-
 	if gorm.IsRecordNotFoundError(err) {
-		vector = nil
-		err = nil
-	}
-
-	if vector == nil {
 		o.logger.Info().Str("point", point.String()).Msg("Creating vector for point")
 		vector = models.NewVectorFromPoint(point)
 		o.statsd.Incr("vectorization.retrieve_vector_from_point.new", makeTags(point), 1)
