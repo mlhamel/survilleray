@@ -62,7 +62,8 @@ func (j *job) Run(ctx context.Context) error {
 		}
 
 		if err != nil {
-			return err
+			j.cfg.Logger().Error().Err(err).Msg("Cannot aquire point")
+			continue
 		}
 	}
 
