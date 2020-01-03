@@ -69,6 +69,8 @@ func (c *Config) Database() *gorm.DB {
 	}
 
 	c.database = database
+	c.database.DB().SetMaxIdleConns(10)
+	c.database.DB().SetMaxOpenConns(100)
 
 	return c.database
 }

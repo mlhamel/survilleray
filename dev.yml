@@ -37,6 +37,7 @@ commands:
     desc: "Run all migrations"
     run: bin/survilleray migrate
   lint: golangci-lint run
+  schedule: bin/survilleray schedule
   test: DATABASE_URL=$DATABASE_TEST_URL go test -cover -race ./...
   vectorize: bin/survilleray vectorize
 

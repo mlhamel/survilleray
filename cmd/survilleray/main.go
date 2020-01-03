@@ -17,6 +17,8 @@ func main() {
 	cfg := config.NewConfig()
 	ctx := context.Background()
 
+	defer cfg.Database().Close()
+
 	cliApp.Commands = []cli.Command{
 		{
 			Name: "acquire",
