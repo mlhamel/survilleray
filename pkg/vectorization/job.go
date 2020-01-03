@@ -41,6 +41,10 @@ func (job *Job) Run(ctx context.Context) error {
 			return fmt.Errorf("Cannot find or create vector: %w", err)
 		}
 
+		if vector == nil {
+			continue
+		}
+
 		if err = operation.MarkPointAsVectorized(ctx, &point); err != nil {
 			return fmt.Errorf("Cannot update VectorizedAt for a point: %w", err)
 		}

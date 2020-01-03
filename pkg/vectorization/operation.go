@@ -31,18 +31,24 @@ func NewOperation(statsd *statsd.Client, logger *zerolog.Logger, pointRepository
 func (o *operationImpl) RetrieveVectorFromPoint(ctx context.Context, point *models.Point) (*models.Vector, error) {
 	vector, err := o.vectorRepository.FindByCallSign(point.CallSign)
 
-	if gorm.IsRecordNotFoundError(err) {
-		o.logger.Info().Str("point", point.String()).Msg("Creating vector for point")
+	if gorm.IsRecordNotFoundError(err) && point.OnGround != true {
 		vector = models.NewVectorFromPoint(point)
-		o.statsd.Incr("vectorization.retrieve_vector_from_point.new", makeTags(point), 1)
-		if err = o.vectorRepository.Create(vector); err != nil {
+		err = o.vectorRepository.Create(vector)
+
+		if err != nil {
 			return nil, fmt.Errorf("Cannot create vector: %w", err)
 		}
+
+		o.logger.Info().Str("point", point.String()).Msg("Vector created from point")
+		o.statsd.Incr("vectorization.retrieve_vector_from_point.new", makeTags(point), 1)
 	} else {
+		o.statsd.Incr("vectorization.retrieve_vector_from_point.update", makeTags(point), 1)
+	}
+
+	if vector != nil {
 		o.statsd.Gauge("GeoAltitude", point.GeoAltitude, makeTags(point), 1)
 		o.statsd.Gauge("BaroAltitude", point.BaroAltitude, makeTags(point), 1)
 		o.statsd.Gauge("Velocity", point.Velocity, makeTags(point), 1)
-		o.statsd.Incr("vectorization.retrieve_vector_from_point.update", makeTags(point), 1)
 	}
 
 	if err != nil {
