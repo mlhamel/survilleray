@@ -31,6 +31,6 @@ func (s *Scheduler) Run(ctx context.Context) error {
 	)
 
 	return runnable.
-		Signal(Periodic(s.cfg, time.Minute*2, group)).
+		Signal(Periodic(s.cfg, time.Minute, group)).
 		Run(ctx)
 }
