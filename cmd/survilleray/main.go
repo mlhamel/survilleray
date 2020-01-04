@@ -66,6 +66,6 @@ func main() {
 
 	err := cliApp.Run(os.Args)
 	if err != nil {
-		cfg.Logger().Error().Err(err)
+		cfg.Logger().Error().Err(err).Msg("Failure occured")
 	}
 }
