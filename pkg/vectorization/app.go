@@ -20,8 +20,9 @@ func NewApp(cfg *config.Config) *App {
 	return &App{cfg, pointRepos, vectorRepos}
 }
 
-func (app *App) Run(ctx context.Context) error {
-	job := NewJob(app.cfg, app.pointRepos, app.vectorRepos)
+func (a *App) Run(ctx context.Context) error {
+	a.cfg.Logger().Info().Msg("Running vectorization")
+	job := NewJob(a.cfg, a.pointRepos, a.vectorRepos)
 
 	return job.Run(ctx)
 }

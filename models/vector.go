@@ -57,7 +57,7 @@ type vectorRepository struct {
 func (r *vectorRepository) Find() ([]Vector, error) {
 	var vectors []Vector
 
-	err := r.cfg.Database().Find(&vectors).Error
+	err := r.cfg.Orm().Find(&vectors).Error
 
 	if err != nil {
 		return nil, err
@@ -69,7 +69,7 @@ func (r *vectorRepository) Find() ([]Vector, error) {
 func (r *vectorRepository) FindByPoint(point *Point) ([]Vector, error) {
 	var vectors []Vector
 
-	err := r.cfg.Database().
+	err := r.cfg.Orm().
 		Where(map[string]interface{}{
 			"icao24":    point.Icao24,
 			"call_sign": point.CallSign,
@@ -87,7 +87,7 @@ func (r *vectorRepository) FindByPoint(point *Point) ([]Vector, error) {
 func (r *vectorRepository) FindByCallSign(callsign string) (*Vector, error) {
 	var vector Vector
 
-	err := r.cfg.Database().
+	err := r.cfg.Orm().
 		Where(map[string]interface{}{
 			"call_sign": callsign,
 			"closed":    false}).
@@ -104,7 +104,7 @@ func (r *vectorRepository) FindByCallSign(callsign string) (*Vector, error) {
 func (r *vectorRepository) FindByClosed(closed bool) ([]Vector, error) {
 	var vectors []Vector
 
-	err := r.cfg.Database().
+	err := r.cfg.Orm().
 		Where(map[string]interface{}{"closed": closed}).
 		Find(&vectors).Error
 
@@ -116,25 +116,25 @@ func (r *vectorRepository) FindByClosed(closed bool) ([]Vector, error) {
 }
 
 func (r *vectorRepository) Create(vector *Vector) error {
-	if !r.cfg.Database().NewRecord(vector) {
+	if !r.cfg.Orm().NewRecord(vector) {
 		return ErrorVectorAlreadyExisted
 	}
-	return r.cfg.Database().Create(&vector).Error
+	return r.cfg.Orm().Create(&vector).Error
 }
 
 func (r *vectorRepository) Insert(vector *Vector) error {
-	return r.cfg.Database().Create(vector).Error
+	return r.cfg.Orm().Create(vector).Error
 }
 
 func (r *vectorRepository) AppendPoints(vector *Vector, points []*Point) error {
-	return r.cfg.Database().
+	return r.cfg.Orm().
 		Model(vector).
 		Association("Points").
 		Append(points).Error
 }
 
 func (r *vectorRepository) Update(vector *Vector, attrs ...interface{}) error {
-	return r.cfg.Database().
+	return r.cfg.Orm().
 		Model(vector).
 		Update(attrs...).Error
 }

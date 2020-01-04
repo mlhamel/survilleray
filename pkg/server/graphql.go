@@ -45,7 +45,7 @@ func (controller *GraphQLController) queryType() *graphql.Object {
 					Description: "Get point list",
 					Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 						var points []models.Point
-						controller.cfg.Database().Find(&points)
+						controller.cfg.Orm().Find(&points)
 
 						return points, nil
 					},

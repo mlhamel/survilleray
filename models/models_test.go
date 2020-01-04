@@ -36,7 +36,7 @@ func (s *Suite) SetupSuite() {
 }
 
 func (s *Suite) SetupTest() {
-	tx, err := s.cfg.Database().DB().Begin()
+	tx, err := s.cfg.Orm().DB().Begin()
 
 	if err != nil {
 		panic(err)

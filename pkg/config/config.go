@@ -17,7 +17,7 @@ type Config struct {
 	DatabaseURL string
 	parsedURL   *dburl.URL
 	httpPort    string
-	database    *gorm.DB
+	database    *database
 	log         *zerolog.Logger
 	statsd      *statsd.Client
 }
@@ -51,28 +51,30 @@ func NewConfig() *Config {
 	}
 }
 
-func NewConfigWithDatabase(database *gorm.DB) *Config {
+func NewConfigWithDatabase(db *database) *Config {
 	cfg := NewConfig()
-	cfg.database = database
+	cfg.database = db
 	return cfg
 }
 
-func (c *Config) Database() *gorm.DB {
-	if c.database != nil {
+func (c *Config) Database() *database {
+	if c.database != nil && c.database.DB() != nil {
 		return c.database
 	}
 
-	database, err := gorm.Open("postgres", c.DSN())
+	database, err := NewDatabase(c.DSN())
 
 	if err != nil {
 		panic(err)
 	}
 
 	c.database = database
-	c.database.DB().SetMaxIdleConns(10)
-	c.database.DB().SetMaxOpenConns(100)
 
 	return c.database
+}
+
+func (c *Config) Orm() *gorm.DB {
+	return c.Database().orm
 }
 
 // DSN is the connexion key to the database

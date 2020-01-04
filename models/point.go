@@ -112,7 +112,7 @@ type pointRepository struct {
 func (repository *pointRepository) Find() ([]Point, error) {
 	points := []Point{}
 
-	err := repository.cfg.Database().Find(&points).Error
+	err := repository.cfg.Orm().Find(&points).Error
 
 	if err != nil {
 		return nil, err
@@ -124,8 +124,7 @@ func (repository *pointRepository) Find() ([]Point, error) {
 func (repository *pointRepository) FindByIcao24(icao24 string) ([]Point, error) {
 	points := []Point{}
 
-	err := repository.cfg.
-		Database().
+	err := repository.cfg.Orm().
 		Debug().
 		Where("icao24 = ?", icao24).
 		Find(&points).Error
@@ -140,7 +139,7 @@ func (repository *pointRepository) FindByIcao24(icao24 string) ([]Point, error) 
 func (repository *pointRepository) FindByVectorizedAt(vectorizedAt *time.Time) ([]Point, error) {
 	points := []Point{}
 
-	query := repository.cfg.Database().Debug()
+	query := repository.cfg.Orm().Debug()
 
 	if vectorizedAt == nil {
 		query = query.Where("vectorized_at IS NULL")
@@ -158,19 +157,19 @@ func (repository *pointRepository) FindByVectorizedAt(vectorizedAt *time.Time) (
 }
 
 func (repository *pointRepository) Create(point *Point) error {
-	if !repository.cfg.Database().NewRecord(point) {
+	if !repository.cfg.Orm().NewRecord(point) {
 		return ErrorPointalreadyExisted
 	}
-	return repository.cfg.Database().Create(&point).Error
+	return repository.cfg.Orm().Create(&point).Error
 }
 
 func (repository *pointRepository) Insert(point *Point) error {
-	return repository.cfg.Database().Create(point).Error
+	return repository.cfg.Orm().Create(point).Error
 }
 
 func (repository *pointRepository) Update(point *Point, attrs ...interface{}) error {
 	return repository.cfg.
-		Database().
+		Orm().
 		Model(point).
 		Update(attrs...).Error
 }

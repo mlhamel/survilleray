@@ -28,7 +28,7 @@ func (job *Job) Run(ctx context.Context) error {
 	operation := NewOperation(job.cfg.Statsd(), job.cfg.Logger(), job.pointRepos, job.vectorRepos)
 
 	for i := 0; i < len(points); i++ {
-		tx := job.cfg.Database().Begin()
+		tx := job.cfg.Orm().Begin()
 		if tx.Error != nil {
 			return err
 		}
