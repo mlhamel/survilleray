@@ -8,19 +8,19 @@ import (
 )
 
 func CreatePoint(ctx context.Context, cfg *config.Config) error {
-	return cfg.Database().Debug().AutoMigrate(&Point{}).Error
+	return cfg.Orm().Debug().AutoMigrate(&Point{}).Error
 }
 
 func CreateDistrict(ctx context.Context, cfg *config.Config) error {
-	return cfg.Database().Debug().AutoMigrate(&District{}).Error
+	return cfg.Orm().Debug().AutoMigrate(&District{}).Error
 }
 
 func EnablePostgis(ctx context.Context, cfg *config.Config) error {
-	return cfg.Database().Debug().Exec("CREATE EXTENSION IF NOT EXISTS postgis").Error
+	return cfg.Orm().Debug().Exec("CREATE EXTENSION IF NOT EXISTS postgis").Error
 }
 
 func CreateVector(ctx context.Context, cfg *config.Config) error {
-	return cfg.Database().Debug().AutoMigrate(&Vector{}).Error
+	return cfg.Orm().Debug().AutoMigrate(&Vector{}).Error
 }
 
 func CreateVilleray(ctx context.Context, cfg *config.Config) error {
@@ -43,5 +43,5 @@ func CreateVilleray(ctx context.Context, cfg *config.Config) error {
 
 	query := "INSERT INTO districts(name, geometry) VALUES ($1, ST_GeomFromText($2, 4326));"
 
-	return cfg.Database().Debug().Exec(query, "villeray", district.Geometry).Error
+	return cfg.Orm().Debug().Exec(query, "villeray", district.Geometry).Error
 }

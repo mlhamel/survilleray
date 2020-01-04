@@ -20,7 +20,7 @@ type districtRepository struct {
 func (d *districtRepository) Find() ([]*District, error) {
 	var districts []*District
 
-	err := d.cfg.Database().
+	err := d.cfg.Orm().
 		Table("districts").
 		Select("name, ST_AsText(geometry) as geometry").
 		Find(&districts).Error
@@ -35,7 +35,7 @@ func (d *districtRepository) Find() ([]*District, error) {
 func (d *districtRepository) FindByName(name string) (*District, error) {
 	var district District
 
-	err := d.cfg.Database().
+	err := d.cfg.Orm().
 		Table("districts").
 		Select("name, ST_AsText(geometry) as geometry").
 		Where("name = ?", name).
@@ -51,7 +51,7 @@ func (d *districtRepository) FindByName(name string) (*District, error) {
 func (d *districtRepository) Insert(district *District) error {
 	query := "INSERT INTO districts(name, geometry) VALUES ($1, ST_GeomFromText($2, 4326));"
 
-	return d.cfg.Database().
+	return d.cfg.Orm().
 		Exec(query, "villeray", district.Geometry).
 		Error
 }
@@ -62,7 +62,7 @@ func (d *districtRepository) AppendPoint(district *District, point *Point) error
 		Str("district", district.Name).
 		Msg("Inserting point in district")
 	return d.cfg.
-		Database().
+		Orm().
 		Model(district).
 		Association("Points").
 		Append(point).Error
