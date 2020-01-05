@@ -23,7 +23,7 @@ func (s *Scheduler) Run(ctx context.Context) error {
 	acquisition := acquisition.NewApp(s.cfg)
 	vectorization := vectorization.NewApp(s.cfg)
 
-	queue := running.Queue(s.cfg, acquisition, vectorization)
+	queue := running.Queue(s.cfg, acquisition)
 	periodic := running.Periodic(s.cfg, time.Second, queue)
 
 	return runnable.
