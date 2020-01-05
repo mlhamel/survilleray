@@ -149,7 +149,7 @@ func (repository *pointRepository) FindByVectorizedAt(vectorizedAt *time.Time) (
 		query = query.Where("vectorized_at = ?", vectorizedAt)
 	}
 
-	err := query.Find(&points).Error
+	err := query.Limit(10).Find(&points).Error
 
 	if err != nil {
 		return nil, err
