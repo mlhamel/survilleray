@@ -12,10 +12,10 @@ var ErrorVectorAlreadyExisted = errors.New("Point already existed")
 
 type Vector struct {
 	gorm.Model
-	Icao24   string  `gorm:"not null"`
-	CallSign string  `gorm:"not null"`
+	Icao24   string  `gorm:"not null;index:idx_icao24_callsign_country_closed"`
+	CallSign string  `gorm:"not null;index:idx_callsign,idx_icao24_callsign_country_closed"`
 	Country  string  `gorm:"not null"`
-	Closed   bool    `gorm:"default:false"`
+	Closed   bool    `gorm:"default:false;index:idx_closed,idx_icao24_callsign_country_closed"`
 	Points   []Point `gorm:"many2many:vector_points"`
 }
 
