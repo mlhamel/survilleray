@@ -141,7 +141,7 @@ func (repository *pointRepository) FindByIcao24(icao24 string) ([]Point, error) 
 func (repository *pointRepository) FindByVectorizedAt(vectorizedAt *time.Time) ([]Point, error) {
 	points := []Point{}
 
-	query := repository.cfg.Orm().Debug()
+	query := repository.cfg.Orm()
 
 	if vectorizedAt == nil {
 		query = query.Where("vectorized_at IS NULL")

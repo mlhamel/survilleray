@@ -74,7 +74,7 @@ func (c *Config) Database() *database {
 }
 
 func (c *Config) Orm() *gorm.DB {
-	return c.Database().orm
+	return c.Database().orm.Debug()
 }
 
 // DSN is the connexion key to the database
