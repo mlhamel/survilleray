@@ -29,6 +29,7 @@ func (job *Job) Run(ctx context.Context) error {
 
 	for i := 0; i < len(points); i++ {
 		tx := job.cfg.Orm().Begin()
+
 		if tx.Error != nil {
 			return err
 		}
@@ -36,7 +37,6 @@ func (job *Job) Run(ctx context.Context) error {
 		point := points[i]
 
 		vector, err := operation.RetrieveVectorFromPoint(ctx, &point)
-
 		if err != nil {
 			return fmt.Errorf("Cannot find or create vector: %w", err)
 		}

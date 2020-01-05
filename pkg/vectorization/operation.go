@@ -30,7 +30,6 @@ func NewOperation(statsd *statsd.Client, logger *zerolog.Logger, pointRepository
 
 func (o *operationImpl) RetrieveVectorFromPoint(ctx context.Context, point *models.Point) (*models.Vector, error) {
 	vector, err := o.vectorRepository.FindByCallSign(point.CallSign)
-
 	if gorm.IsRecordNotFoundError(err) && point.OnGround != true {
 		vector = models.NewVectorFromPoint(point)
 		err = o.vectorRepository.Create(vector)
@@ -57,7 +56,6 @@ func (o *operationImpl) RetrieveVectorFromPoint(ctx context.Context, point *mode
 	if err != nil {
 		return nil, fmt.Errorf("Cannot find vector: %w", err)
 	}
-
 	return vector, nil
 }
 

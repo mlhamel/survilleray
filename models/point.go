@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/go-spatial/geom"
-	"github.com/jinzhu/gorm"
 	"github.com/mlhamel/survilleray/pkg/config"
 	"github.com/rs/zerolog"
 )
@@ -16,7 +15,7 @@ var ErrorPointalreadyExisted = errors.New("Point already existed")
 
 // Point represent a flight point from Opensky
 type Point struct {
-	gorm.Model
+	ID             uint   `gorm:"primary_key"`
 	Icao24         string `gorm:"not null;unique_index:idx_icao24_callsign_lastcontact"`
 	CallSign       string `gorm:"not null;unique_index:idx_icao24_callsign_lastcontact"`
 	OriginCountry  string
@@ -34,7 +33,10 @@ type Point struct {
 	Squawk         string
 	Spi            bool
 	PositionSource float64
-	VectorizedAt   time.Time `gorm:"default:null"`
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	DeletedAt      time.Time `gorm:"default:null;index:idx_deleted_at_vectorized_at"`
+	VectorizedAt   time.Time `gorm:"default:null;index:idx_deleted_at_vectorized_at"`
 }
 
 type PointRepository interface {

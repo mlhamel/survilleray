@@ -28,13 +28,13 @@ func (j *job) Run(ctx context.Context) error {
 	}
 
 	points, err := operation.GetLatestPoint(ctx, j.cfg.OpenSkyURL())
+	logger.Debug().Msg("Request done")
 
 	if err != nil {
 		return err
 	}
 
-	j.cfg.Statsd().
-		Gauge("acquistion.job.found", float64(len(points)), []string{}, 1)
+	j.cfg.Statsd().Gauge("acquistion.job.found", float64(len(points)), []string{}, 1)
 
 	for i := 0; i < len(points); i++ {
 		point := points[i]
@@ -43,7 +43,7 @@ func (j *job) Run(ctx context.Context) error {
 
 		if err = operation.InsertPoint(ctx, &point); err != nil {
 			j.cfg.Statsd().Incr("acquistion.job.invalid", []string{}, 1)
-			logger.Warn().Err(err).Str("point", point.Icao24).Msg("Cannot insert point")
+			logger.Debug().Err(err).Str("point", point.Icao24).Msg("Cannot insert point")
 			continue
 		}
 
@@ -62,7 +62,7 @@ func (j *job) Run(ctx context.Context) error {
 		}
 
 		if err != nil {
-			j.cfg.Logger().Error().Err(err).Msg("Cannot aquire point")
+			j.cfg.Logger().Debug().Err(err).Msg("Cannot aquire point")
 			continue
 		}
 	}

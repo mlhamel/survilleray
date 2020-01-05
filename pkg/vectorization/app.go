@@ -24,5 +24,9 @@ func (a *App) Run(ctx context.Context) error {
 	a.cfg.Logger().Info().Msg("Running vectorization")
 	job := NewJob(a.cfg, a.pointRepos, a.vectorRepos)
 
-	return job.Run(ctx)
+	err := job.Run(ctx)
+
+	a.cfg.Logger().Info().Msg("Done: Running vectorization")
+
+	return err
 }

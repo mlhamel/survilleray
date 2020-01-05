@@ -24,5 +24,9 @@ func (a *app) Run(ctx context.Context) error {
 	a.cfg.Logger().Info().Msg("Running acquisition")
 	job := NewJob(a.cfg, a.pointRepos, a.districtRepos)
 
-	return job.Run(ctx)
+	err := job.Run(ctx)
+
+	a.cfg.Logger().Info().Msg("Done: Running acquisition")
+
+	return err
 }

@@ -1,4 +1,4 @@
-package scheduler
+package running
 
 import (
 	"context"
@@ -53,7 +53,6 @@ func (p *periodicRunnable) runForever(ctx context.Context, errs chan<- error, do
 				errs <- err
 				return
 			}
-			p.cfg.Database().Close()
 		}
 	}
 }

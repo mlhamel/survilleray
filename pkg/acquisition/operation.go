@@ -44,8 +44,6 @@ func (o *operationImpl) InsertPoint(ctx context.Context, point *models.Point) er
 		return nil
 	}
 
-	o.logger.Error().Err(err).Str("point", point.Icao24).Msg("Cannot insert point")
-
 	return err
 }
 

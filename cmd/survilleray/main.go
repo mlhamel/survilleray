@@ -7,7 +7,6 @@ import (
 	"github.com/mlhamel/survilleray/pkg/acquisition"
 	"github.com/mlhamel/survilleray/pkg/app"
 	"github.com/mlhamel/survilleray/pkg/config"
-	"github.com/mlhamel/survilleray/pkg/scheduler"
 	"github.com/mlhamel/survilleray/pkg/vectorization"
 	"github.com/urfave/cli"
 )
@@ -58,7 +57,7 @@ func main() {
 		{
 			Name: "schedule",
 			Action: func(*cli.Context) error {
-				scheduler := scheduler.NewScheduler(cfg)
+				scheduler := app.NewScheduler(cfg)
 				return scheduler.Run(ctx)
 			},
 		},

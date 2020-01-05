@@ -45,5 +45,6 @@ func (a *collectionApp) Run(ctx context.Context) error {
 		a.cfg.Logger().Info().Object("vector", &vector).Msg("Closing vector")
 	}
 
+	a.cfg.Logger().Info().Msg("Done: Running collection")
 	return nil
 }
