@@ -7,7 +7,6 @@ import (
 	"github.com/mlhamel/survilleray/pkg/acquisition"
 	"github.com/mlhamel/survilleray/pkg/config"
 	"github.com/mlhamel/survilleray/pkg/running"
-	"github.com/mlhamel/survilleray/pkg/vectorization"
 	"github.com/pior/runnable"
 )
 
@@ -21,10 +20,7 @@ func NewScheduler(cfg *config.Config) Scheduler {
 
 func (s *Scheduler) Run(ctx context.Context) error {
 	acquisition := acquisition.NewApp(s.cfg)
-	vectorization := vectorization.NewApp(s.cfg)
-	collection := NewCollectionApp(s.cfg)
-
-	queue := running.Queue(s.cfg, acquisition, vectorization, collection)
+	queue := running.Queue(s.cfg, acquisition)
 	periodic := running.Periodic(s.cfg, time.Minute*5, queue)
 
 	return runnable.
