@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/jinzhu/gorm"
 	"github.com/mlhamel/survilleray/models"
 	"github.com/mlhamel/survilleray/pkg/config"
 )
@@ -38,7 +39,7 @@ func (job *Job) Run(ctx context.Context) error {
 
 		vector, err := operation.RetrieveVectorFromPoint(ctx, &point)
 		if err != nil {
-			return fmt.Errorf("Cannot find or create vector: %w", err)
+			return closeTx(tx, fmt.Errorf("Cannot find or create vector: %w", err))
 		}
 
 		if vector == nil {
@@ -46,17 +47,24 @@ func (job *Job) Run(ctx context.Context) error {
 		}
 
 		if err = operation.MarkPointAsVectorized(ctx, &point); err != nil {
-			return fmt.Errorf("Cannot update VectorizedAt for a point: %w", err)
+			return closeTx(tx, fmt.Errorf("Cannot update VectorizedAt for a point: %w", err))
 		}
 
 		if err = operation.AddPointToVector(ctx, &point, vector); err != nil {
-			return fmt.Errorf("Cannot add point to vector: %w", err)
+			return closeTx(tx, fmt.Errorf("Cannot add point to vector: %w", err))
 		}
 
 		if err = tx.Commit().Error; err != nil {
-			return fmt.Errorf("Cannot commit transaction: %w", err)
+			return closeTx(tx, fmt.Errorf("Cannot commit transaction: %w", err))
 		}
 	}
 
 	return nil
+}
+
+func closeTx(tx *gorm.DB, err error) error {
+	if err := tx.Close(); err != nil {
+		return fmt.Errorf("Cannot close transaction: %w", err)
+	}
+	return err
 }
