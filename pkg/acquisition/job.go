@@ -2,6 +2,7 @@ package acquisition
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/mlhamel/survilleray/models"
 	"github.com/mlhamel/survilleray/pkg/config"
@@ -52,18 +53,16 @@ func (j *job) Run(ctx context.Context) error {
 			Str("district", villeray.Name).
 			Msg("Figuring out if point overlaps with district")
 
-		err = operation.UpdateOverlaps(ctx, villeray, &point)
-
-		if err == ErrPointNotOverlaps {
-			j.cfg.Statsd().Incr("acquistion.job.nooverlaps", []string{}, 1)
-			err = nil
-		} else {
-			j.cfg.Statsd().Incr("acquistion.job.overlaps", []string{}, 1)
-		}
+		isOverlaps, err := operation.UpdateOverlaps(ctx, villeray, &point)
 
 		if err != nil {
-			j.cfg.Logger().Debug().Err(err).Msg("Cannot aquire point")
-			continue
+			return fmt.Errorf("Cannot update overlaps: %w", err)
+		}
+
+		if isOverlaps {
+			j.cfg.Statsd().Incr("acquistion.job.nooverlaps", []string{}, 1)
+		} else {
+			j.cfg.Statsd().Incr("acquistion.job.overlaps", []string{}, 1)
 		}
 	}
 

@@ -3,6 +3,7 @@ package acquisition
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/mlhamel/survilleray/models"
 	"github.com/mlhamel/survilleray/pkg/opensky"
@@ -14,7 +15,7 @@ var ErrPointNotOverlaps = errors.New("point does not overlaps with district")
 type Operation interface {
 	GetLatestPoint(context.Context, string) ([]models.Point, error)
 	InsertPoint(context.Context, *models.Point) error
-	UpdateOverlaps(context.Context, *models.District, *models.Point) error
+	UpdateOverlaps(context.Context, *models.District, *models.Point) (bool, error)
 }
 
 type operationImpl struct {
@@ -47,19 +48,23 @@ func (o *operationImpl) InsertPoint(ctx context.Context, point *models.Point) er
 	return err
 }
 
-func (o *operationImpl) UpdateOverlaps(ctx context.Context, district *models.District, point *models.Point) error {
+func (o *operationImpl) UpdateOverlaps(ctx context.Context, district *models.District, point *models.Point) (bool, error) {
 	overlaps, err := point.CheckOverlaps(district)
 
 	if err != nil {
-		return err
+		return false, fmt.Errorf("Cannot check overlaps: %w", err)
 	}
 
 	if !overlaps {
 		o.logger.Info().Str("point", point.Icao24).Str("district", district.Name).Msg("Point does not overlaps with district")
-		return ErrPointNotOverlaps
+		return false, nil
 	}
 
 	o.logger.Info().Str("point", point.Icao24).Str("district", district.Name).Msg("Point overlaps with district")
 
-	return o.districtRepos.AppendPoint(district, point)
+	if err := o.districtRepos.AppendPoint(district, point); err != nil {
+		return false, fmt.Errorf("Cannot append point: %w", err)
+	}
+
+	return true, nil
 }
