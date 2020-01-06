@@ -11,12 +11,15 @@ import (
 	"github.com/pior/runnable"
 )
 
+const TIMEOUT = time.Minute
+
 type Scheduler struct {
-	cfg *config.Config
+	cfg     *config.Config
+	timeout time.Duration
 }
 
 func NewScheduler(cfg *config.Config) Scheduler {
-	return Scheduler{cfg}
+	return Scheduler{cfg, TIMEOUT}
 }
 
 func (s *Scheduler) Run(ctx context.Context) error {
@@ -25,7 +28,7 @@ func (s *Scheduler) Run(ctx context.Context) error {
 	collection := NewCollectionApp(s.cfg)
 
 	wrapper := running.Wrapper(s.cfg, closer, acquisition, vectorization, collection)
-	periodic := running.Periodic(s.cfg, time.Minute*5, wrapper)
+	periodic := running.Periodic(s.cfg, s.timeout, wrapper)
 
 	return runnable.
 		Signal(periodic).
