@@ -7,6 +7,7 @@ import (
 	"github.com/mlhamel/survilleray/pkg/acquisition"
 	"github.com/mlhamel/survilleray/pkg/config"
 	"github.com/mlhamel/survilleray/pkg/running"
+	"github.com/mlhamel/survilleray/pkg/vectorization"
 	"github.com/pior/runnable"
 )
 
@@ -20,10 +21,27 @@ func NewScheduler(cfg *config.Config) Scheduler {
 
 func (s *Scheduler) Run(ctx context.Context) error {
 	acquisition := acquisition.NewApp(s.cfg)
-	queue := running.Queue(s.cfg, acquisition)
-	periodic := running.Periodic(s.cfg, time.Minute*5, queue)
+	vectorization := vectorization.NewApp(s.cfg)
+	collection := NewCollectionApp(s.cfg)
+
+	wrapper := running.Wrapper(s.cfg, closer, acquisition, vectorization, collection)
+	periodic := running.Periodic(s.cfg, time.Minute*5, wrapper)
 
 	return runnable.
 		Signal(periodic).
 		Run(ctx)
+}
+
+func closer(cfg *config.Config, ctx context.Context, runner runnable.Runnable) error {
+	if err := runner.Run(ctx); err != nil {
+		return err
+	}
+
+	cfg.Logger().Debug().Msg("Closing database connection")
+
+	err := cfg.Database().Close()
+
+	cfg.Logger().Debug().Msg("Done: Closing database connection")
+
+	return err
 }
