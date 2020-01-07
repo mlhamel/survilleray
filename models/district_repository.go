@@ -22,7 +22,7 @@ func (d *districtRepository) Find() ([]*District, error) {
 
 	err := d.cfg.Orm().
 		Table("districts").
-		Select("name, ST_AsText(geometry) as geometry").
+		Select("ID, name, created_at, updated_at, deleted_at, ST_AsText(geometry) as geometry").
 		Find(&districts).Error
 
 	if err != nil {
@@ -37,7 +37,7 @@ func (d *districtRepository) FindByName(name string) (*District, error) {
 
 	err := d.cfg.Orm().
 		Table("districts").
-		Select("*, ST_AsText(geometry) as geometry").
+		Select("ID, name, created_at, updated_at, deleted_at, ST_AsText(geometry) as geometry").
 		Where("name = ?", name).
 		First(&district).Error
 
