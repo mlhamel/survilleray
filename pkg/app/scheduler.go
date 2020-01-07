@@ -27,7 +27,7 @@ func (s *Scheduler) Run(ctx context.Context) error {
 	vectorization := vectorization.NewApp(s.cfg)
 	collection := NewCollectionApp(s.cfg)
 
-	wrapper := running.Wrapper(s.cfg, closer, acquisition, vectorization, collection)
+	wrapper := running.Queue(s.cfg, acquisition, vectorization, collection)
 	periodic := running.Periodic(s.cfg, s.timeout, wrapper)
 
 	return runnable.
