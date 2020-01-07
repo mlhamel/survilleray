@@ -61,9 +61,9 @@ func (j *job) Run(ctx context.Context) error {
 		}
 
 		if isOverlaps {
-			j.cfg.Statsd().Incr("acquistion.job.nooverlaps", []string{}, 1)
-		} else {
 			j.cfg.Statsd().Incr("acquistion.job.overlaps", []string{}, 1)
+		} else {
+			j.cfg.Statsd().Incr("acquistion.job.nooverlaps", []string{}, 1)
 		}
 	}
 
