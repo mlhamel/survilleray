@@ -44,17 +44,15 @@ func (j *job) Run(ctx context.Context) error {
 
 		if err = operation.InsertPoint(ctx, &point); err != nil {
 			j.cfg.Statsd().Incr("acquistion.job.invalid", []string{}, 1)
-			logger.Debug().Err(err).Str("point", point.Icao24).Msg("Cannot insert point")
+			logger.Debug().Err(err).Object("point", &point).Msg("Cannot insert point")
 			continue
+		} else if !point.OnGround {
+			j.cfg.Statsd().Incr("acquistion.job.insert", []string{"onground:0"}, 1)
 		} else {
-			j.cfg.Statsd().Incr("acquistion.job.insert", []string{}, 1)
+			j.cfg.Statsd().Incr("acquistion.job.insert", []string{"onground:1"}, 1)
 		}
 
-		logger.Info().
-			Str("point", point.Icao24).
-			Uint("point-id", point.ID).
-			Str("district", villeray.Name).
-			Msg("Figuring out if point overlaps with district")
+		logger.Debug().Object("point", &point).Msg("Point was inserted")
 
 		isOverlaps, err := operation.UpdateOverlaps(ctx, villeray, &point)
 
