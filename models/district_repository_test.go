@@ -8,5 +8,5 @@ func (s *Suite) TestFindByName() {
 	s.NotNil(district)
 	s.Equal(uint(1), district.ID)
 	s.Empty(district.Points)
-	s.Contains(district.Geometry, "0106000020E6100000010000000")
+	s.Contains(district.Geometry, "MULTIPOLYGON(((-73.62195162 45.554561")
 }
