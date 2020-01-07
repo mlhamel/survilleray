@@ -46,9 +46,8 @@ func (s *Suite) SetupTest() {
 	s.ctx = context.Background()
 
 	migrator := NewMigrator(s.cfg)
-	err = migrator.Execute(s.ctx)
 
-	if err != nil {
+	if err = migrator.Execute(s.ctx); err != nil {
 		panic(err)
 	}
 
@@ -57,8 +56,7 @@ func (s *Suite) SetupTest() {
 		panic(err)
 	}
 
-	_, err = s.insertVectors(points)
-	if err != nil {
+	if _, err = s.insertVectors(points); err != nil {
 		panic(err)
 	}
 }

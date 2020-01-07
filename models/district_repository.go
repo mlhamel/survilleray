@@ -37,7 +37,7 @@ func (d *districtRepository) FindByName(name string) (*District, error) {
 
 	err := d.cfg.Orm().
 		Table("districts").
-		Select("name, ST_AsText(geometry) as geometry").
+		Select("*, ST_AsText(geometry) as geometry").
 		Where("name = ?", name).
 		First(&district).Error
 
