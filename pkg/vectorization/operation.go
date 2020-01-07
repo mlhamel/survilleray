@@ -41,9 +41,11 @@ func (o *operationImpl) RetrieveVectorFromPoint(ctx context.Context, point *mode
 		o.logger.Info().Str("point", point.String()).Msg("Vector created from point")
 		o.statsd.Incr("vectorization.retrieve_vector_from_point.new", makeTags(point), 1)
 	} else if gorm.IsRecordNotFoundError(err) && point.OnGround == true {
+		o.logger.Info().Object("point", point).Msg("Point on ground")
 		vector = nil
 		err = nil
 	} else {
+		o.logger.Info().Object("point", point).Msg("Point already vectorized")
 		o.statsd.Incr("vectorization.retrieve_vector_from_point.update", makeTags(point), 1)
 	}
 
