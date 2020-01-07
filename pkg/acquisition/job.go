@@ -46,6 +46,8 @@ func (j *job) Run(ctx context.Context) error {
 			j.cfg.Statsd().Incr("acquistion.job.invalid", []string{}, 1)
 			logger.Debug().Err(err).Str("point", point.Icao24).Msg("Cannot insert point")
 			continue
+		} else {
+			j.cfg.Statsd().Incr("acquistion.job.insert", []string{}, 1)
 		}
 
 		logger.Info().
