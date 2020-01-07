@@ -43,6 +43,7 @@ func (p *periodicRunnable) runForever(ctx context.Context, errs chan<- error, do
 	defer ticker.Stop()
 
 	for {
+		p.cfg.Statsd().Incr("Scheduler.Run", []string{}, 1)
 		p.cfg.Logger().Info().Str("duration", fmtDuration(p.duration)).Msg("Sleeping")
 		select {
 		case <-done:
