@@ -60,7 +60,12 @@ func (o *operationImpl) UpdateOverlaps(ctx context.Context, district *models.Dis
 		return false, nil
 	}
 
-	o.logger.Info().Str("point", point.Icao24).Str("district", district.Name).Msg("Point overlaps with district")
+	o.logger.Info().
+		Str("point", point.Icao24).
+		Uint("point-id", point.ID).
+		Str("district", district.Name).
+		Uint("district-id", district.ID).
+		Msg("Point overlaps with district")
 
 	if err := o.districtRepos.AppendPoint(district, point); err != nil {
 		return false, fmt.Errorf("Cannot append point: %w", err)

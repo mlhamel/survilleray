@@ -50,6 +50,7 @@ func (j *job) Run(ctx context.Context) error {
 
 		logger.Info().
 			Str("point", point.Icao24).
+			Uint("point-id", point.ID).
 			Str("district", villeray.Name).
 			Msg("Figuring out if point overlaps with district")
 
