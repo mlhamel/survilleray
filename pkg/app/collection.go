@@ -8,6 +8,8 @@ import (
 	"github.com/mlhamel/survilleray/pkg/config"
 )
 
+const TIMEOUT = time.Hour * -2
+
 type collectionApp struct {
 	cfg   *config.Config
 	repos models.VectorRepository
@@ -21,7 +23,7 @@ func NewCollectionApp(cfg *config.Config) *collectionApp {
 func (a *collectionApp) Run(ctx context.Context) error {
 	a.cfg.Logger().Info().Msg("Running collection")
 
-	yesterday := time.Now().Add(time.Hour * -24)
+	yesterday := time.Now().Add(TIMEOUT)
 
 	vectors, err := a.repos.FindByClosed(false)
 
