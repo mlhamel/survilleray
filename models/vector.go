@@ -25,6 +25,7 @@ func NewVectorFromPoint(point *Point) *Vector {
 		CallSign: point.CallSign,
 		Country:  point.OriginCountry,
 		Points:   []Point{},
+		Closed:   false,
 	}
 }
 
