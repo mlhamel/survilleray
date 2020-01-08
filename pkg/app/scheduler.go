@@ -11,7 +11,7 @@ import (
 	"github.com/pior/runnable"
 )
 
-const TIMEOUT = time.Minute
+const TIMEOUT = 15 * time.Second
 
 type Scheduler struct {
 	cfg     *config.Config
