@@ -11,7 +11,7 @@ import (
 	"github.com/pior/runnable"
 )
 
-const TIMEOUT = 15 * time.Second
+const DURATION = 15 * time.Second
 
 type Scheduler struct {
 	cfg     *config.Config
@@ -19,7 +19,7 @@ type Scheduler struct {
 }
 
 func NewScheduler(cfg *config.Config) Scheduler {
-	return Scheduler{cfg, TIMEOUT}
+	return Scheduler{cfg, DURATION}
 }
 
 func (s *Scheduler) Run(ctx context.Context) error {
