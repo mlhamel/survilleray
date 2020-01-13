@@ -3,7 +3,6 @@ module github.com/mlhamel/survilleray
 go 1.13
 
 require (
-	cloud.google.com/go v0.37.4 // indirect
 	github.com/DATA-DOG/go-txdb v0.1.3
 	github.com/DataDog/datadog-go v3.3.1+incompatible
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
@@ -22,14 +21,13 @@ require (
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/pior/runnable v0.3.0
 	github.com/rs/zerolog v1.17.2
+	github.com/stretchr/objx v0.1.1 // indirect
 	github.com/stretchr/testify v1.4.0
 	github.com/urfave/cli v1.22.2
 	github.com/xo/dburl v0.0.0-20191219122722-3cca8608d645
-	golang.org/x/net v0.0.0-20191109021931-daa7c04131f5 // indirect
 	golang.org/x/sys v0.0.0-20200107162124-548cf772de50 // indirect
 	google.golang.org/appengine v1.6.2 // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
-	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect
 	gopkg.in/go-playground/validator.v9 v9.31.0 // indirect
 	gopkg.in/yaml.v2 v2.2.7 // indirect
 )
