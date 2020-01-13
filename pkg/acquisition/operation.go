@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/DataDog/datadog-go/statsd"
 	"github.com/mlhamel/survilleray/models"
 	"github.com/mlhamel/survilleray/pkg/opensky"
 	"github.com/rs/zerolog"
@@ -19,13 +20,14 @@ type Operation interface {
 }
 
 type operationImpl struct {
+	statsd        *statsd.Client
 	logger        *zerolog.Logger
 	pointRepos    models.PointRepository
 	districtRepos models.DistrictRepository
 }
 
-func NewOperation(logger *zerolog.Logger, pointRepos models.PointRepository, districtRepos models.DistrictRepository) Operation {
-	return &operationImpl{logger, pointRepos, districtRepos}
+func NewOperation(statsd *statsd.Client, logger *zerolog.Logger, pointRepos models.PointRepository, districtRepos models.DistrictRepository) Operation {
+	return &operationImpl{statsd, logger, pointRepos, districtRepos}
 }
 
 func (o *operationImpl) GetLatestPoint(ctx context.Context, url string) ([]models.Point, error) {
@@ -57,7 +59,10 @@ func (o *operationImpl) UpdateOverlaps(ctx context.Context, district *models.Dis
 
 	if !overlaps {
 		o.logger.Info().Str("point", point.Icao24).Str("district", district.Name).Msg("Point does not overlaps with district")
+		o.statsd.Incr("acquisition.notmatch", []string{fmt.Sprintf("district:%s", district.ID)}, 1)
 		return false, nil
+	} else {
+		o.statsd.Incr("acquisition.match", []string{fmt.Sprintf("district:%s", district.ID)}, 1)
 	}
 
 	o.logger.Info().

@@ -19,8 +19,9 @@ func NewJob(cfg *config.Config, pointRepos models.PointRepository, districtRepos
 }
 
 func (j *job) Run(ctx context.Context) error {
+	statsd := j.cfg.Statsd()
 	logger := j.cfg.Logger()
-	operation := NewOperation(logger, j.pointRepos, j.districtRepos)
+	operation := NewOperation(statsd, logger, j.pointRepos, j.districtRepos)
 
 	villeray, err := j.districtRepos.FindByName("villeray")
 
