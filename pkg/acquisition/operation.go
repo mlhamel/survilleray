@@ -59,11 +59,11 @@ func (o *operationImpl) UpdateOverlaps(ctx context.Context, district *models.Dis
 
 	if !overlaps {
 		o.logger.Info().Str("point", point.Icao24).Str("district", district.Name).Msg("Point does not overlaps with district")
-		o.statsd.Incr("acquisition.notmatch", []string{fmt.Sprintf("district:%s", district.ID)}, 1)
+		o.statsd.Incr("acquisition.notmatch", []string{fmt.Sprintf("district:%d", district.ID)}, 1)
 		return false, nil
-	} else {
-		o.statsd.Incr("acquisition.match", []string{fmt.Sprintf("district:%s", district.ID)}, 1)
 	}
+
+	o.statsd.Incr("acquisition.match", []string{fmt.Sprintf("district:%d", district.ID)}, 1)
 
 	o.logger.Info().
 		Str("point", point.Icao24).
