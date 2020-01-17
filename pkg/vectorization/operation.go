@@ -31,7 +31,7 @@ func NewOperation(statsd *statsd.Client, logger *zerolog.Logger, pointRepository
 func (o *operationImpl) RetrieveVectorFromPoint(ctx context.Context, point *models.Point) (*models.Vector, error) {
 	vector, err := o.vectorRepository.FindByCallSign(point.CallSign)
 
-	if gorm.IsRecordNotFoundError(err) && !point.OnGround {
+	if gorm.IsRecordNotFoundError(err) {
 		vector = models.NewVectorFromPoint(point)
 		err = o.vectorRepository.Create(vector)
 
@@ -41,11 +41,6 @@ func (o *operationImpl) RetrieveVectorFromPoint(ctx context.Context, point *mode
 
 		o.logger.Info().Str("point", point.String()).Msg("Vector created from point")
 		o.statsd.Incr("vectorization.retrieve_vector_from_point.new", makeTags(point), 1)
-	} else if gorm.IsRecordNotFoundError(err) && point.OnGround {
-		o.statsd.Incr("vectorization.retrieve_vector_from_point.ground", makeTags(point), 1)
-		o.logger.Info().Object("point", point).Msg("Point on ground")
-		vector = nil
-		err = nil
 	} else {
 		o.logger.Info().Object("point", point).Msg("Point already vectorized")
 		o.statsd.Incr("vectorization.retrieve_vector_from_point.update", makeTags(point), 1)
