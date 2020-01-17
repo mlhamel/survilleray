@@ -29,7 +29,6 @@ func (job *Job) Run(ctx context.Context) error {
 
 	for i := 0; i < len(points); i++ {
 		point := points[i]
-
 		vector, err := operation.RetrieveVectorFromPoint(ctx, &point)
 		if err != nil {
 			return err
