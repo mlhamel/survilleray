@@ -89,9 +89,7 @@ func (r *vectorRepository) FindByCallSign(callsign string) (*Vector, error) {
 	var vector Vector
 
 	err := r.cfg.Orm().
-		Where(map[string]interface{}{
-			"call_sign": callsign,
-			"closed":    false}).
+		Where(map[string]interface{}{"call_sign": callsign, "closed": false}).
 		Last(&vector).
 		Error
 

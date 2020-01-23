@@ -29,13 +29,17 @@ func (job *Job) Run(ctx context.Context) error {
 
 	for i := 0; i < len(points); i++ {
 		point := points[i]
-		vector, err := operation.RetrieveVectorFromPoint(ctx, &point)
+		vector, err := operation.GetVectorFromPoint(ctx, &point)
 		if err != nil {
 			return err
 		}
 
 		if vector == nil {
-			continue
+			vector, err = operation.CreateVectorFromPoint(ctx, &point)
+
+			if err != nil {
+				return err
+			}
 		}
 
 		if err = operation.MarkPointAsVectorized(ctx, &point); err != nil {
