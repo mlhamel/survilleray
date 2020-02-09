@@ -11,60 +11,51 @@ import (
 	"github.com/rs/zerolog"
 )
 
-// Request is used for requesting new data to OpenSky
-type Request struct {
-	url    string
-	logger *zerolog.Logger
+const pointBasePath = "/api/states/all?lamin=%d&lamax=%d&lomin=%d&lomax=%d"
+
+type pointsRequest struct {
+	URL     string
+	logger  *zerolog.Logger
+	results *parsedPointRequest
 }
 
-type parsedRequest struct {
-	Time   int
-	States []interface{}
+type parsedPointRequest struct {
+	Time   interface{}   `json:"time"`
+	States []interface{} `json:"states"`
 }
 
-// NewRequest is creating a new OpenSky request
-func NewRequest(url string) *Request {
-	return &Request{url: url, logger: &zerolog.Logger{}}
+func NewPointsRequest(url string, logger *zerolog.Logger) *pointsRequest {
+	return &pointsRequest{URL: url, logger: logger, results: &parsedPointRequest{}}
 }
 
-func NewRequestWithLogger(url string, logger *zerolog.Logger) *Request {
-	return &Request{url: url, logger: logger}
-}
-
-// GetPlanes a request to OpenSky
-func (r *Request) GetPlanes(ctx context.Context) (points []models.Point, e error) {
-	parsedURL := fmt.Sprintf(r.url, 44, 47, -74, -72)
-
-	r.logger.Info().Str("url", parsedURL).Msg("Getting data")
-
-	resp, err := http.Get(parsedURL)
-
+func (r *pointsRequest) Run(ctx context.Context) error {
+	r.logger.Info().Str("url", r.statePathURL()).Msg("Getting data")
+	resp, err := http.Get(r.statePathURL())
 	if err != nil {
-		return points, err
+		return fmt.Errorf("Cannot reach opensky url at %s: %w", r.statePathURL(), err)
 	}
-
 	defer resp.Body.Close()
 
 	r.logger.Info().Str("status", resp.Status).Msg("Getting response")
-
 	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("Cannot read body: %w", err)
+	}
 
 	r.logger.Info().Str("body", string(body)).Msg("Parsing body")
-
+	err = json.Unmarshal([]byte(body), r.results)
 	if err != nil {
-		return points, err
+		return fmt.Errorf("Cannot unmarshall %s to json: %w", string(body), err)
 	}
 
-	var results parsedRequest
+	return nil
+}
 
-	err = json.Unmarshal([]byte(body), &results)
+func (r *pointsRequest) Result() []models.Point {
+	var points []models.Point
 
-	if err != nil {
-		return points, err
-	}
-
-	for i := 0; i < len(results.States); i++ {
-		var v = results.States[i].([]interface{})
+	for i := 0; i < len(r.results.States); i++ {
+		var v = r.results.States[i].([]interface{})
 
 		var longitude float64
 		var latitude float64
@@ -129,5 +120,11 @@ func (r *Request) GetPlanes(ctx context.Context) (points []models.Point, e error
 
 		points = append(points, point)
 	}
-	return points, nil
+	return points
+}
+
+func (r *pointsRequest) statePathURL() string {
+	path := fmt.Sprintf(pointBasePath, 44, 47, -74, -72)
+
+	return fmt.Sprintf("%s/%s", r.URL, path)
 }
