@@ -31,7 +31,12 @@ func NewOperation(statsd *statsd.Client, logger *zerolog.Logger, pointRepos mode
 }
 
 func (o *operationImpl) GetLatestPoint(ctx context.Context, url string) ([]models.Point, error) {
-	return opensky.NewRequestWithLogger(url, o.logger).GetPlanes(ctx)
+	request := opensky.NewPointsRequest(url, o.logger)
+	err := request.Run(ctx)
+	if err != nil {
+		return []models.Point{}, err
+	}
+	return request.Result(), nil
 }
 
 func (o *operationImpl) InsertPoint(ctx context.Context, point *models.Point) error {
