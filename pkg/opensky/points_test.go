@@ -22,7 +22,7 @@ func TestNewPointRequest(t *testing.T) {
 }
 
 func TestPointsRun(t *testing.T) {
-	server := makeOpenskyServer()
+	server := makeOpenskyPointServer()
 
 	defer server.Close()
 
@@ -39,7 +39,7 @@ func TestPointsRun(t *testing.T) {
 	assert.Equal(t, "e8027e", p.Icao24)
 }
 
-func makeOpenskyServer() *httptest.Server {
+func makeOpenskyPointServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Header().Set("Content-Type", "application/json")

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/mlhamel/survilleray/models"
 	"github.com/rs/zerolog"
@@ -14,9 +15,10 @@ import (
 const pointBasePath = "/api/states/all?lamin=%d&lamax=%d&lomin=%d&lomax=%d"
 
 type pointsRequest struct {
-	URL     string
-	logger  *zerolog.Logger
-	results *parsedPointRequest
+	URL            string
+	logger         *zerolog.Logger
+	results        *parsedPointRequest
+	defaultTimeout time.Duration
 }
 
 type parsedPointRequest struct {
@@ -25,26 +27,43 @@ type parsedPointRequest struct {
 }
 
 func NewPointsRequest(url string, logger *zerolog.Logger) *pointsRequest {
-	return &pointsRequest{URL: url, logger: logger, results: &parsedPointRequest{}}
+	return &pointsRequest{
+		URL:            url,
+		logger:         logger,
+		results:        &parsedPointRequest{},
+		defaultTimeout: time.Second * 5,
+	}
 }
 
 func (r *pointsRequest) Run(ctx context.Context) error {
-	r.logger.Info().Str("url", r.statePathURL()).Msg("Getting data")
-	resp, err := http.Get(r.statePathURL())
+	var url = r.statePathURL()
+
+	ctx, cancelFunc := context.WithTimeout(context.Background(), r.defaultTimeout)
+	defer cancelFunc()
+
+	r.logger.Info().Str("url", url).Msg("Getting data")
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return fmt.Errorf("Cannot reach opensky url at %s: %w", r.statePathURL(), err)
+		return fmt.Errorf("Cannot reach opensky url at %s: %w", url, err)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("Cannot reach opensky url at %s: %w", url, err)
 	}
 	defer resp.Body.Close()
 
 	r.logger.Info().Str("status", resp.Status).Msg("Getting response")
+
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return fmt.Errorf("Cannot read body: %w", err)
 	}
 
 	r.logger.Info().Str("body", string(body)).Msg("Parsing body")
-	err = json.Unmarshal([]byte(body), r.results)
-	if err != nil {
+
+	if err = json.Unmarshal([]byte(body), r.results); err != nil {
 		return fmt.Errorf("Cannot unmarshall %s to json: %w", string(body), err)
 	}
 
