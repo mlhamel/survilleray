@@ -23,6 +23,7 @@ var migrations = []Migration{
 	Migration{"creating district", CreateDistrict},
 	Migration{"creating vector", CreateVector},
 	Migration{"creating villeray", CreateVilleray},
+	Migration{"creating plane", CreatePlane},
 }
 
 func NewMigrator(cfg *config.Config) *Migrator {

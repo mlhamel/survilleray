@@ -1,12 +1,15 @@
 package models
 
+import "github.com/jinzhu/gorm"
+
 type Plane struct {
-	Icao24                           string
+	gorm.Model
+	Icao24                           string `gorm:"not null;unique_index:idx_icao24_callsign_lastseen"`
 	FirstSeen                        float64
 	EstDepartureAirport              string
-	LastSeen                         float64
+	LastSeen                         float64 `gorm:"not null;unique_index:idx_icao24_callsign_lastseen"`
 	EstArrivalAirport                string
-	Callsign                         string
+	Callsign                         string `gorm:"not null;unique_index:idx_icao24_callsign_lastseen"`
 	EstDepartureAirportHorizDistance float64
 	EstDepartureAirportVertDistance  float64
 	EstArrivalAirportHorizDistance   float64

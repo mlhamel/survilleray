@@ -15,6 +15,10 @@ func CreateDistrict(ctx context.Context, cfg *config.Config) error {
 	return cfg.Orm().Debug().AutoMigrate(&District{}).Error
 }
 
+func CreatePlane(ctx context.Context, cfg *config.Config) error {
+	return cfg.Orm().Debug().AutoMigrate(&Plane{}).Error
+}
+
 func EnablePostgis(ctx context.Context, cfg *config.Config) error {
 	return cfg.Orm().Debug().Exec("CREATE EXTENSION IF NOT EXISTS postgis").Error
 }
