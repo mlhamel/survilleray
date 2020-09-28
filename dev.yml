@@ -39,6 +39,9 @@ commands:
   db:migrate:
     desc: "Run all migrations"
     run: bin/survilleray migrate
+  db:shell:
+    desc: "Open a db shell"
+    run: psql --username=postgres --host=survilleray.railgun survilleray_development
   lint: golangci-lint run
   schedule: bin/survilleray schedule
   test: DATABASE_URL=$DATABASE_TEST_URL go test -cover -race ./...
