@@ -8,8 +8,7 @@ require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/denisenkom/go-mssqldb v0.0.0-20200910202707-1e08a3fab204 // indirect
 	github.com/dn365/gin-zerolog v0.0.0-20171227063204-b43714b00db1
-	github.com/gin-gonic/gin v1.6.3
-	github.com/go-playground/validator/v10 v10.3.0 // indirect
+	github.com/gin-gonic/gin v1.7.7
 	github.com/go-spatial/geom v0.0.0-20200810200216-9bf4204b30e9
 	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/google/go-cmp v0.5.2 // indirect
@@ -27,7 +26,7 @@ require (
 	github.com/rs/zerolog v1.20.0
 	github.com/stretchr/objx v0.3.0 // indirect
 	github.com/stretchr/testify v1.6.1
-	github.com/ugorji/go/codec v1.1.8 // indirect
+	github.com/ugorji/go v1.1.8 // indirect
 	github.com/urfave/cli v1.22.4
 	github.com/xo/dburl v0.0.0-20200910011426-652e0d5720a3
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a // indirect
